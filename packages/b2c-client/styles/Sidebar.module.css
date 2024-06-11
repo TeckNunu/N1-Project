@@ -1,0 +1,97 @@
+.sidebar {
+    background: #fff !important;
+    min-height: 100vh;
+    position: fixed;
+    left: 24px;
+    top: 24px;
+    bottom: 24px;
+    width: 260px;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.searchSection {
+    margin-bottom: 16px;
+    max-width: 200px;
+}
+
+.menuSection,
+.filterSection {
+    margin-bottom: 24px;
+}
+
+.menuTitle {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.menuTitleText {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.selectedItem {
+    color: #f5222d !important;
+    font-weight: bold;
+}
+
+.filterTitle {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.filterCategory {
+    font-weight: bold;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.ant-menu-item {
+    padding-left: 24px !important;
+}
+
+.toggleButton {
+    width: 100%;
+    text-align: left;
+    padding-left: 0;
+}
+
+.divider {
+    margin: 20px 0;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.sortSection {
+    margin-top: 16px;
+}
+
+.sortText {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.menuItem {
+    padding-left: 24px !important;
+}
+
+.active {
+    background-color: #f0f0f0;
+}
+
+.latestProductsSection {
+    margin-top: 20px;
+}
+
+.menuTitle {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.menuTitleText {
+    font-weight: bold;
+    font-size: 16px;
+}

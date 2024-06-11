@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+:root {
+    height: 100%;
+}
+
+.animation-fade-in {
+    transition: 0.5s all ease;
+    animation-name: toTop;
+    animation-duration: 2s;
+    animation-direction: normal;
+    position: relative;
+}
+@keyframes toTop {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
