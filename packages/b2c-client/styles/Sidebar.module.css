@@ -95,3 +95,21 @@
     font-weight: bold;
     font-size: 16px;
 }
+
+.resetButton {
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    background-color: #f5222d;
+    font-weight: bold;
+    margin-top: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.5s;
+}
+
+.resetButton:hover {
+    background-color: #d41a1a !important;
+    color: #fff !important;
+}

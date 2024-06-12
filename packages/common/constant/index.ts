@@ -68,4 +68,4 @@ export const FILTER_LIST = [
 
 export const PAGE_SIZE = 5;
 
-export const PAGE_SIZE_CLIENT_PRODUCT = 20;
+export const PAGE_SIZE_CLIENT_PRODUCT = 4;

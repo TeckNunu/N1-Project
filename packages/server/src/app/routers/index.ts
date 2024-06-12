@@ -7,6 +7,8 @@ import category from './category';
 import product from './product';
 import post from './post';
 import slider from './slider';
+import cart from './cart';
+import feedback from './feedback';
 
 const router = Router();
 
@@ -19,5 +21,7 @@ export default (): Router => {
     product(router);
     post(router);
     slider(router);
+    cart(router);
+    feedback(router);
     return router;
 };

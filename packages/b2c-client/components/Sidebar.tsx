@@ -18,6 +18,7 @@ type SidebarProps = {
         thumbnail: string;
     }[];
     setCategory: (category: string) => void;
+    handleResetFilters: () => void;
     handleSearch: (
         page: number,
         sort?: string,
@@ -27,15 +28,18 @@ type SidebarProps = {
     ) => void;
     currentSort?: string;
     currentSortOrder?: string;
+    currentCategory?: string;
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
     categories = [],
     latestProducts = [],
     setCategory,
+    handleResetFilters,
     handleSearch,
     currentSort,
     currentSortOrder,
+    currentCategory,
 }) => {
     const [expanded, setExpanded] = useState(false);
 
@@ -45,7 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     const onSearch = (value: string) => {
-        handleSearch(1, currentSort, currentSortOrder, undefined, value);
+        handleSearch(1, currentSort, currentSortOrder, currentCategory, value);
     };
 
     const visibleCategories = expanded ? categories : categories.slice(0, 3);
@@ -94,6 +98,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                     )}
                 </Menu>
             </div>
+            <Button
+                className={styles.resetButton}
+                onClick={handleResetFilters}
+                type="link"
+            >
+                Xóa bộ lọc
+            </Button>
             <div className={styles.divider} />
             <div className={styles.latestProductsSection}>
                 <div className={styles.menuTitle}>
@@ -117,6 +128,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 Sidebar.defaultProps = {
     currentSort: '',
     currentSortOrder: '',
+    currentCategory: '',
 };
 
 export default Sidebar;

@@ -57,26 +57,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
                     >
                         Mới Nhất
                     </Menu.Item>
-                    <Menu.Item
-                        className={`${styles.menuItem} ${selectedItems.includes('1') ? styles.active : ''}`}
-                        key="1"
-                        onClick={() => {
-                            toggleSelectItem('1');
-                            handleSortChange('name', 'asc');
-                        }}
-                    >
-                        Phổ Biến
-                    </Menu.Item>
-                    <Menu.Item
-                        className={`${styles.menuItem} ${selectedItems.includes('3') ? styles.active : ''}`}
-                        key="3"
-                        onClick={() => {
-                            toggleSelectItem('3');
-                            handleSortChange('name', 'desc');
-                        }}
-                    >
-                        Bán Chạy
-                    </Menu.Item>
                     <Dropdown
                         overlay={
                             <Menu
