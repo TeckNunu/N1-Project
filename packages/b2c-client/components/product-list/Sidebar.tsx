@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Input, Layout, Menu } from 'antd';
 import LatestProductCard from './LatestProductCard';
-import styles from '../styles/Sidebar.module.css';
+import styles from '../../styles/Sidebar.module.css';
 
 const { Sider } = Layout;
 const { Search } = Input;

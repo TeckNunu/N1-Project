@@ -4,11 +4,11 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router'; // Import useRouter từ Next.js
 import * as request from 'common/utils/http-request';
-import styles from '../styles/ProductCard.module.css';
+import styles from '../../styles/ProductCard.module.css';
 import useLoginModal from '~/hooks/useLoginModal';
 import { useAuth } from '~/hooks/useAuth';
 import { Product } from '~/types/product';
-import FeedbackModal from './modals/feedback-modal';
+import FeedbackModal from '../modals/feedback-modal';
 
 type ProductCardProps = Omit<Product, 'updatedAt'>;
 

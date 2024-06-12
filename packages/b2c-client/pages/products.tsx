@@ -5,9 +5,9 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { get } from 'common/utils/http-request';
 import { PAGE_SIZE_CLIENT_PRODUCT } from 'common/constant';
-import Sidebar from '../components/Sidebar';
-import HeaderBar from '../components/HeaderBar';
-import ProductContent from '../components/ProductContent';
+import Sidebar from '../components/product-list/Sidebar';
+import HeaderBar from '../components/product-list/HeaderBar';
+import ProductContent from '../components/product-list/ProductContent';
 import styles from '../styles/Products.module.css';
 
 const { Content } = Layout;

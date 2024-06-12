@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../styles/LatestProductCard.module.css';
+import styles from '../../styles/LatestProductCard.module.css';
 
 type LatestProductCardProps = {
     name: string;

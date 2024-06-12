@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Pagination } from 'antd';
 import ProductCard from './ProductCard';
-import styles from '../styles/ProductContent.module.css';
+import styles from '../../styles/ProductContent.module.css';
 import { Product } from '~/types/product';
 
 const { Content } = Layout;

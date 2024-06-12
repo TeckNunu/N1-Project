@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dropdown, Layout, Menu } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
-import styles from '../styles/HeaderBar.module.css';
+import styles from '../../styles/HeaderBar.module.css';
 
 const { Header } = Layout;
 
