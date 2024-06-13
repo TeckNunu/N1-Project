@@ -22,7 +22,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
     pageSize,
 }) => {
     return (
-        <Layout style={{ padding: '0 24px 24px' }}>
+        <Layout className={styles.layout}>
             <Content className={styles.content}>
                 <div className={styles.productGrid}>
                     {products.map((product) => (

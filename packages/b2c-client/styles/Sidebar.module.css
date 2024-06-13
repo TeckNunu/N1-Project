@@ -1,6 +1,6 @@
 .sidebar {
-    background: #fff !important;
-    min-height: 100vh;
+    background: #ffffff !important;
+    /* min-height: 100vh; */
     position: fixed;
     left: 24px;
     top: 24px;
@@ -112,4 +112,20 @@
 .resetButton:hover {
     background-color: #d41a1a !important;
     color: #fff !important;
+}
+
+.contactsSection {
+    margin-top: 20px;
+}
+
+.contactList {
+    list-style: none;
+    padding: 5px 0;
+    padding-left: 10px;
+    margin: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contactList li {
+    margin-bottom: 8px;
 }

@@ -3,6 +3,7 @@
     margin: 0 100px;
     gap: 40px;
     min-height: 100vh;
+    background-color: #ffffff;
 }
 
 .mainLayout {
@@ -10,6 +11,7 @@
 }
 
 .content {
-    background: #fff;
+    background-color: #ffffff;
     min-height: 280px;
+    margin: 0 !important;
 }

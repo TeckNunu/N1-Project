@@ -121,6 +121,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                     />
                 ))}
             </div>
+            <div className={styles.contactsSection}>
+                <div className={styles.menuTitle}>
+                    <span className={styles.menuTitleText}>Liên hệ</span>
+                </div>
+                <ul className={styles.contactList}>
+                    <li>Email: contact@example.com</li>
+                    <li>Phone: +123 456 789</li>
+                    <li>Address: 123 Main Street</li>
+                </ul>
+            </div>
         </Sider>
     );
 };
