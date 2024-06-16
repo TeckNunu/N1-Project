@@ -1,6 +1,5 @@
 .sidebar {
     background: #ffffff !important;
-    /* min-height: 100vh; */
     position: fixed;
     left: 24px;
     top: 24px;
@@ -8,6 +7,7 @@
     width: 260px;
     padding: 10px;
     overflow-y: auto;
+    /* border: 1px solid red; */
 }
 
 .searchSection {
