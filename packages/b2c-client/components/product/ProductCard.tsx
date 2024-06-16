@@ -48,19 +48,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         // Check if user is authenticated
         if (auth && (auth as { access_token: string }).access_token) {
-            // User is authenticated, add to server cart
             addToCart.mutate(productData);
         }
 
         // Save to localStorage
+        const now = new Date().toISOString();
+        const localProductData = {
+            ...productData,
+            createdAt: now,
+            updatedAt: now,
+        };
+
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const existingProductIndex = cart.findIndex(
             (item: { productId: string }) => item.productId === id
         );
         if (existingProductIndex > -1) {
             cart[existingProductIndex].quantity += 1;
+            cart[existingProductIndex].updatedAt = now;
         } else {
-            cart.push(productData);
+            cart.push(localProductData);
         }
         localStorage.setItem('cart', JSON.stringify(cart));
         toast.success('Product added to cart!');
