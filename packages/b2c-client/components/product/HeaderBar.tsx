@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dropdown, Layout, Menu } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import styles from '../../styles/HeaderBar.module.css';
@@ -15,14 +15,29 @@ type HeaderBarProps = {
         category?: string,
         searchTerm?: string
     ) => void;
+    currentSort: string;
+    currentSortOrder: string;
 };
 
 const HeaderBar: React.FC<HeaderBarProps> = ({
     setSort,
     setSortOrder,
     handleSearch,
+    currentSort,
+    currentSortOrder,
 }) => {
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+    useEffect(() => {
+        const selected: string[] = [];
+        if (currentSort === 'updatedAt' && currentSortOrder === 'desc') {
+            selected.push('2');
+        }
+        if (currentSort === 'discount_price') {
+            selected.push(`discount_price-${currentSortOrder}`);
+        }
+        setSelectedItems(selected);
+    }, [currentSort, currentSortOrder]);
 
     const handleSortChange = (sort: string, sortOrder: string) => {
         setSort(sort);

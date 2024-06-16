@@ -26,25 +26,7 @@ const Products: NextPage = () => {
     const { query: routerQuery } = router;
 
     const [products, setProducts] = useState([]);
-    const [currentPage, setCurrentPage] = useState<number>(
-        Number(routerQuery.page) || 1
-    );
-    const [sort, setSort] = useState<string | undefined>(
-        routerQuery.sort as string
-    );
-    const [sortOrder, setSortOrder] = useState<string | undefined>(
-        routerQuery.sortOrder as string
-    );
-    const [category, setCategory] = useState<string | undefined>(
-        routerQuery.category as string
-    );
-    const [searchTerm, setSearchTerm] = useState<string | undefined>(
-        routerQuery.search as string
-    );
     const [totalProducts, setTotalProducts] = useState(0);
-    const [pageSize, setPageSize] = useState<number>(
-        Number(routerQuery.pageSize) || PAGE_SIZE_CLIENT_PRODUCT
-    );
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const { data: categories, isLoading: categoryLoading } = useQuery({
@@ -62,17 +44,8 @@ const Products: NextPage = () => {
         }
     );
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (params: SearchParams) => {
         setIsLoading(true);
-        const params: SearchParams = {
-            page: currentPage,
-            pageSize,
-            sortBy: sort,
-            sortOrder,
-            categoryId: category,
-            search: searchTerm,
-        };
-
         try {
             const res = await get('product/search', { params });
             setTotalProducts(res.data.total);
@@ -82,34 +55,14 @@ const Products: NextPage = () => {
         }
     };
 
-    useEffect(() => {
-        fetchProducts();
-    }, [currentPage, sort, sortOrder, category, searchTerm, pageSize]);
-
-    const handleSearch = (
-        page = 1,
-        sortParam?: string,
-        sortOrderParam?: string,
-        categoryParam?: string,
-        searchParam?: string,
-        pageSizeParam?: number
-    ) => {
-        setCurrentPage(page);
-        setSort(sortParam !== undefined ? sortParam : sort);
-        setSortOrder(sortOrderParam !== undefined ? sortOrderParam : sortOrder);
-        setCategory(categoryParam !== undefined ? categoryParam : category);
-        setSearchTerm(searchParam !== undefined ? searchParam : searchTerm);
-        if (pageSizeParam) {
-            setPageSize(pageSizeParam);
-        }
-
+    const updateUrlAndFetchProducts = (params: SearchParams) => {
         const updatedQuery: Record<string, string | number> = {
-            page,
-            pageSize: pageSizeParam ?? pageSize,
-            sort: sortParam ?? sort ?? '',
-            sortOrder: sortOrderParam ?? sortOrder ?? '',
-            category: categoryParam ?? category ?? '',
-            search: searchParam ?? searchTerm ?? '',
+            page: params.page,
+            pageSize: params.pageSize,
+            sort: params.sortBy ?? '',
+            sortOrder: params.sortOrder ?? '',
+            category: params.categoryId ?? '',
+            search: params.search ?? '',
         };
 
         // Remove empty string values from query
@@ -121,36 +74,57 @@ const Products: NextPage = () => {
 
         router.push(
             {
-                pathname: '/product',
+                pathname: router.pathname,
                 query: updatedQuery,
             },
             undefined,
             { shallow: true }
         );
+
+        fetchProducts(params);
+    };
+
+    useEffect(() => {
+        const params: SearchParams = {
+            page: Number(routerQuery.page) || 1,
+            pageSize: Number(routerQuery.pageSize) || PAGE_SIZE_CLIENT_PRODUCT,
+            sortBy: routerQuery.sort as string,
+            sortOrder: routerQuery.sortOrder as string,
+            categoryId: routerQuery.category as string,
+            search: routerQuery.search as string,
+        };
+        fetchProducts(params);
+    }, [router.query]);
+
+    const handleSearch = (
+        page = 1,
+        sortParam?: string,
+        sortOrderParam?: string,
+        categoryParam?: string,
+        searchParam?: string,
+        pageSizeParam?: number
+    ) => {
+        const params: SearchParams = {
+            page,
+            pageSize:
+                pageSizeParam ??
+                (Number(routerQuery.pageSize) || PAGE_SIZE_CLIENT_PRODUCT),
+            sortBy: sortParam ?? (routerQuery.sort as string),
+            sortOrder: sortOrderParam ?? (routerQuery.sortOrder as string),
+            categoryId: categoryParam ?? (routerQuery.category as string),
+            search: searchParam ?? (routerQuery.search as string),
+        };
+
+        updateUrlAndFetchProducts(params);
     };
 
     const handleResetFilters = () => {
-        setCurrentPage(1);
-        setSort(undefined);
-        setSortOrder(undefined);
-        setCategory(undefined);
-        setSearchTerm(undefined);
-        setPageSize(PAGE_SIZE_CLIENT_PRODUCT);
-
-        // Gọi handleSearch với các giá trị mặc định và cập nhật URL
-        const updatedQuery: Record<string, string | number> = {
+        const params: SearchParams = {
             page: 1,
             pageSize: PAGE_SIZE_CLIENT_PRODUCT,
         };
 
-        router.push(
-            {
-                pathname: '/product',
-                query: updatedQuery,
-            },
-            undefined,
-            { shallow: true }
-        );
+        updateUrlAndFetchProducts(params);
     };
 
     return (
@@ -158,52 +132,63 @@ const Products: NextPage = () => {
             <Layout className={styles.container}>
                 <Sidebar
                     categories={categories}
-                    currentCategory={category}
-                    currentSort={sort}
-                    currentSortOrder={sortOrder}
+                    currentCategory={routerQuery.category as string}
+                    currentSort={routerQuery.sort as string}
+                    currentSortOrder={routerQuery.sortOrder as string}
                     handleResetFilters={handleResetFilters}
                     handleSearch={handleSearch}
                     latestProducts={latestProducts}
                     setCategory={(cat) => {
-                        handleSearch(1, sort, sortOrder, cat, searchTerm);
+                        handleSearch(
+                            1,
+                            routerQuery.sort as string,
+                            routerQuery.sortOrder as string,
+                            cat,
+                            routerQuery.search as string
+                        );
                     }}
                 />
                 <Layout className={styles.mainLayout}>
                     <HeaderBar
+                        currentSort={routerQuery.sort as string}
+                        currentSortOrder={routerQuery.sortOrder as string}
                         handleSearch={handleSearch}
                         setSort={(newSort) => {
                             handleSearch(
                                 1,
                                 newSort,
-                                sortOrder,
-                                category,
-                                searchTerm
+                                routerQuery.sortOrder as string,
+                                routerQuery.category as string,
+                                routerQuery.search as string
                             );
                         }}
                         setSortOrder={(newSortOrder) => {
                             handleSearch(
                                 1,
-                                sort,
+                                routerQuery.sort as string,
                                 newSortOrder,
-                                category,
-                                searchTerm
+                                routerQuery.category as string,
+                                routerQuery.search as string
                             );
                         }}
                     />
                     <Content className={styles.content}>
                         <ProductContent
-                            currentPage={currentPage}
+                            currentPage={Number(routerQuery.page) || 1}
                             onPageChange={(page, newPageSize) =>
                                 handleSearch(
                                     page,
-                                    sort,
-                                    sortOrder,
-                                    category,
-                                    searchTerm,
+                                    routerQuery.sort as string,
+                                    routerQuery.sortOrder as string,
+                                    routerQuery.category as string,
+                                    routerQuery.search as string,
                                     newPageSize
                                 )
                             }
-                            pageSize={pageSize}
+                            pageSize={
+                                Number(routerQuery.pageSize) ||
+                                PAGE_SIZE_CLIENT_PRODUCT
+                            }
                             products={products}
                             total={totalProducts}
                         />

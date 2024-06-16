@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Input, Layout, Menu } from 'antd';
 import LatestProductCard from './LatestProductCard';
 import styles from '../../styles/Sidebar.module.css';
@@ -42,14 +42,22 @@ const Sidebar: React.FC<SidebarProps> = ({
     currentCategory,
 }) => {
     const [expanded, setExpanded] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<
+        string | undefined
+    >(currentCategory);
+
+    useEffect(() => {
+        setSelectedCategory(currentCategory);
+    }, [currentCategory]);
 
     const handleCategoryChange = (category: string) => {
         setCategory(category);
+        setSelectedCategory(category);
         handleSearch(1, currentSort, currentSortOrder, category);
     };
 
     const onSearch = (value: string) => {
-        handleSearch(1, currentSort, currentSortOrder, currentCategory, value);
+        handleSearch(1, currentSort, currentSortOrder, selectedCategory, value);
     };
 
     const visibleCategories = expanded ? categories : categories.slice(0, 3);
@@ -72,8 +80,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                     </span>
                 </div>
                 <Menu
-                    defaultSelectedKeys={['1']}
                     mode="inline"
+                    selectedKeys={[selectedCategory || '']}
                     style={{ borderRight: 0 }}
                 >
                     {visibleCategories.map((category) => (
