@@ -130,4 +130,11 @@
     margin-bottom: 8px;
 }
 
+.checkboxGroup {
+    display: flex;
+    flex-direction: column;
+}
 
+.checkbox {
+    margin-bottom: 8px;
+}

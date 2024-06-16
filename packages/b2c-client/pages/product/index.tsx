@@ -19,6 +19,7 @@ type SearchParams = {
     sortOrder?: string;
     categoryId?: string;
     search?: string;
+    brandId?: string;
 };
 
 const Products: NextPage = () => {
@@ -32,6 +33,11 @@ const Products: NextPage = () => {
     const { data: categories, isLoading: categoryLoading } = useQuery({
         queryKey: ['category'],
         queryFn: () => get('category').then((res) => res.data.data),
+    });
+
+    const { data: brands, isLoading: brandsLoading } = useQuery({
+        queryKey: ['brands'],
+        queryFn: () => get('brand').then((res) => res.data.data),
     });
 
     const { data: latestProducts, isLoading: latestProductsLoading } = useQuery(
@@ -63,6 +69,7 @@ const Products: NextPage = () => {
             sortOrder: params.sortOrder ?? '',
             category: params.categoryId ?? '',
             search: params.search ?? '',
+            brand: params.brandId ?? '',
         };
 
         // Remove empty string values from query
@@ -92,6 +99,7 @@ const Products: NextPage = () => {
             sortOrder: routerQuery.sortOrder as string,
             categoryId: routerQuery.category as string,
             search: routerQuery.search as string,
+            brandId: routerQuery.brand as string,
         };
         fetchProducts(params);
     }, [router.query]);
@@ -102,7 +110,8 @@ const Products: NextPage = () => {
         sortOrderParam?: string,
         categoryParam?: string,
         searchParam?: string,
-        pageSizeParam?: number
+        pageSizeParam?: number,
+        brandParam?: string
     ) => {
         const params: SearchParams = {
             page,
@@ -113,6 +122,7 @@ const Products: NextPage = () => {
             sortOrder: sortOrderParam ?? (routerQuery.sortOrder as string),
             categoryId: categoryParam ?? (routerQuery.category as string),
             search: searchParam ?? (routerQuery.search as string),
+            brandId: brandParam ?? (routerQuery.brand as string),
         };
 
         updateUrlAndFetchProducts(params);
@@ -128,23 +138,45 @@ const Products: NextPage = () => {
     };
 
     return (
-        <Spin spinning={categoryLoading || latestProductsLoading || isLoading}>
+        <Spin
+            spinning={
+                categoryLoading ||
+                latestProductsLoading ||
+                brandsLoading ||
+                isLoading
+            }
+        >
             <Layout className={styles.container}>
                 <Sidebar
+                    brands={brands}
                     categories={categories}
+                    currentBrand={routerQuery.brand as string}
                     currentCategory={routerQuery.category as string}
                     currentSort={routerQuery.sort as string}
                     currentSortOrder={routerQuery.sortOrder as string}
                     handleResetFilters={handleResetFilters}
                     handleSearch={handleSearch}
                     latestProducts={latestProducts}
+                    setBrand={(brand) => {
+                        handleSearch(
+                            1,
+                            routerQuery.sort as string,
+                            routerQuery.sortOrder as string,
+                            routerQuery.category as string,
+                            routerQuery.search as string,
+                            undefined,
+                            brand
+                        );
+                    }}
                     setCategory={(cat) => {
                         handleSearch(
                             1,
                             routerQuery.sort as string,
                             routerQuery.sortOrder as string,
                             cat,
-                            routerQuery.search as string
+                            routerQuery.search as string,
+                            undefined,
+                            routerQuery.brand as string
                         );
                     }}
                 />
@@ -159,7 +191,9 @@ const Products: NextPage = () => {
                                 newSort,
                                 routerQuery.sortOrder as string,
                                 routerQuery.category as string,
-                                routerQuery.search as string
+                                routerQuery.search as string,
+                                undefined,
+                                routerQuery.brand as string
                             );
                         }}
                         setSortOrder={(newSortOrder) => {
@@ -168,7 +202,9 @@ const Products: NextPage = () => {
                                 routerQuery.sort as string,
                                 newSortOrder,
                                 routerQuery.category as string,
-                                routerQuery.search as string
+                                routerQuery.search as string,
+                                undefined,
+                                routerQuery.brand as string
                             );
                         }}
                     />
@@ -182,7 +218,8 @@ const Products: NextPage = () => {
                                     routerQuery.sortOrder as string,
                                     routerQuery.category as string,
                                     routerQuery.search as string,
-                                    newPageSize
+                                    newPageSize,
+                                    routerQuery.brand as string
                                 )
                             }
                             pageSize={
