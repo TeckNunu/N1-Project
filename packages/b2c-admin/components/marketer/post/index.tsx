@@ -39,6 +39,7 @@ type FormType = {
     isShow?: boolean;
     categoryId?: string;
     userId?: string;
+    isFeatured?: boolean;
 };
 
 type SearchParams = FormType & {
@@ -114,6 +115,27 @@ const PostList = () => {
         ) => toast.error(error.response?.data.message),
     });
 
+    const { mutate: updatePostFeaturedTrigger } = useMutation({
+        mutationFn: ({
+            postId,
+            isFeatured,
+        }: {
+            postId: string;
+            isFeatured: boolean;
+        }) => {
+            return request
+                .put(`post/updateFeatured/${postId}`, { isFeatured })
+                .then((res) => res.data);
+        },
+        onSuccess: (res) => toast.success(res.message),
+        onError: (
+            error: AxiosError<{
+                isOk?: boolean | null;
+                message?: string | null;
+            }>
+        ) => toast.error(error.response?.data.message),
+    });
+
     const columns: TableColumnsType<Post> = [
         {
             title: 'ID',
@@ -166,7 +188,6 @@ const PostList = () => {
                 return (
                     <Switch
                         checkedChildren="Show"
-                        defaultChecked={value}
                         onChange={(checked: boolean) => {
                             updatePostStatusTrigger({
                                 postId: record?.id || '',
@@ -174,6 +195,29 @@ const PostList = () => {
                             });
                         }}
                         unCheckedChildren="Hide"
+                        value={value}
+                    />
+                );
+            },
+            width: 120,
+        },
+        {
+            title: 'Featured',
+            dataIndex: 'isFeatured',
+            key: 'isFeatured',
+            fixed: 'right',
+            render: (value: boolean, record: Post) => {
+                return (
+                    <Switch
+                        checkedChildren="True"
+                        onChange={(checked: boolean) => {
+                            updatePostFeaturedTrigger({
+                                postId: record?.id || '',
+                                isFeatured: checked,
+                            });
+                        }}
+                        unCheckedChildren="False"
+                        value={value}
                     />
                 );
             },
@@ -305,7 +349,7 @@ const PostList = () => {
                         </Form.Item>
 
                         <Form.Item<FormType> label="Search" name="search">
-                            <Input.Search placeholder="Enter post title..." />
+                            <Input placeholder="Enter post title..." />
                         </Form.Item>
                         <Form.Item<FormType> label="Status" name="isShow">
                             <Select allowClear>
@@ -314,6 +358,16 @@ const PostList = () => {
                                 </Select.Option>
                                 <Select.Option value="false">
                                     <Tag color="red">HIDE</Tag>
+                                </Select.Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item<FormType> label="Feature" name="isFeatured">
+                            <Select allowClear>
+                                <Select.Option value="true">
+                                    <Tag color="blue">TRUE</Tag>
+                                </Select.Option>
+                                <Select.Option value="false">
+                                    <Tag color="red">FALSE</Tag>
                                 </Select.Option>
                             </Select>
                         </Form.Item>
@@ -366,6 +420,7 @@ const PostList = () => {
                             pageSizeOptions={[5, 10, 20, 50]}
                             showSizeChanger
                             total={listPost?.pagination?.total}
+                            // eslint-disable-next-line max-lines
                         />
                     ) : null}
                 </div>

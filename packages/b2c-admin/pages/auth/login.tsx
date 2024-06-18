@@ -27,7 +27,6 @@ const Login = () => {
             toast.error(error?.response?.data.message);
         },
         onSuccess: (res: AxiosResponse) => {
-            toast.success(res.data.data.message);
             // Handle the response data
             Cookie.set('cmsUser', JSON.stringify(res.data));
             router.reload();

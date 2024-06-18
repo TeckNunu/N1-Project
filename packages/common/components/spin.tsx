@@ -10,7 +10,7 @@ export const Spin: React.FC<Props> = ({ spinning }) => {
     return (
         <Spinner
             fullscreen
-            indicator={<LoadingOutlined style={{ fontSize: 40 }} />}
+            indicator={<LoadingOutlined style={{ fontSize: 28 }} />}
             spinning={spinning}
         />
     );

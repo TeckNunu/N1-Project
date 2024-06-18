@@ -51,7 +51,7 @@ const LoginModal = () => {
         },
         onSuccess: (res) => {
             toast.success(res.data.message);
-            Cookies.set('accessTokenClient', JSON.stringify(res.data.data));
+            Cookies.set('accessTokenClient', JSON.stringify(res.data));
             setTimeout(() => {
                 onClose();
                 router.reload();

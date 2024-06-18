@@ -16,6 +16,11 @@
             "~/*": ["./*"]
         }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/marketer/post/post-detail"],
+    "include": [
+        "next-env.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        "components/marketer/post/post-detail"
+    ],
     "exclude": ["node_modules"]
 }

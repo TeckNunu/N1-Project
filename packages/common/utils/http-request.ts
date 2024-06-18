@@ -2,14 +2,24 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
-const cmsUser = Cookies.get('cmsUser');
+let token = null;
 
-const user = cmsUser ? JSON.parse(cmsUser) : null;
+if (process.env.NEXT_PUBLIC_SITE === 'CLIENT') {
+    const userString = Cookies.get('accessTokenClient');
+    const user = userString ? JSON.parse(userString) : null;
+    token = user?.access_token;
+}
+
+if (process.env.NEXT_PUBLIC_SITE === 'CMS') {
+    const userString = Cookies.get('cmsUser');
+    const user = userString ? JSON.parse(userString) : null;
+    token = user?.access_token;
+}
 
 const request = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
     headers: {
-        common: { Authorization: `Bearer ${user?.data?.access_token}` },
+        common: { Authorization: `Bearer ${token}` },
     },
 });
 

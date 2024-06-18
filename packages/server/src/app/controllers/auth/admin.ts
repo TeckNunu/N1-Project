@@ -116,14 +116,12 @@ export const loginAdmin = async (req: Request, res: Response) => {
 
     const successObj = {
         data: {
-            data: {
-                name: responseUser.name,
-                email: responseUser.email,
-                role: responseUser.role,
-                access_token: updateUserToken.access_token,
-                refresh_token: updateUserToken.refresh_token,
-                token_type: updateUserToken.token_type,
-            },
+            name: responseUser.name,
+            email: responseUser.email,
+            role: responseUser.role,
+            access_token: updateUserToken.access_token,
+            refresh_token: updateUserToken.refresh_token,
+            token_type: updateUserToken.token_type,
         },
         message: 'Login successfully!',
     };

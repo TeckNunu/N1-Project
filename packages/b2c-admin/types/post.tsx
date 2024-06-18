@@ -7,6 +7,7 @@ export type Post = {
     userId?: string | null;
     thumbnail?: string | null;
     isShow?: boolean | null;
+    isFeatured?: boolean | null;
     createdAt?: string | null;
     updatedAt?: string | null;
     category?: Category | null;

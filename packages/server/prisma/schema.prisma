@@ -13,42 +13,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
-
 model User {
-  id String @id @default(uuid())
-  name String?
-  email String @unique
-  image String? @db.Text
+  id             String      @id @default(uuid())
+  name           String?
+  email          String      @unique
+  image          String?     @db.Text
   hashedPassword String?
-  role Role @default(USER)
-  gender Gender?
-  dob DateTime?
-  phone String?
-  address String?
-  isVerified Boolean? @default(false)
-  status UserStatus?
+  role           Role        @default(USER)
+  gender         Gender?
+  dob            DateTime?
+  phone          String?
+  address        String?
+  isVerified     Boolean?    @default(false)
+  status         UserStatus?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- 
+
   accounts Account[]
   feedback Feedback[]
-  cart Cart[]
-  order Order[]
-  post Post[]
+  cart     Cart[]
+  order    Order[]
+  post     Post[]
 }
 
-model Account{
-  id String @id @default(uuid())
-  userId String 
+model Account {
+  id            String  @id @default(uuid())
+  userId        String
   refresh_token String? @db.Text
-  access_token String? @db.Text
-  expires_at String?
-  token_type String?    
+  access_token  String? @db.Text
+  expires_at    String?
+  token_type    String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Role {
@@ -67,106 +64,104 @@ enum UserStatus {
 }
 
 enum Gender {
- MALE
- FEMALE
+  MALE
+  FEMALE
 }
 
 model Product {
-  id String @id @default(uuid())
-  name String
-  brandId String
+  id             String  @id @default(uuid())
+  name           String
+  brandId        String
   original_price Int
   discount_price Int?
-  quantity Int @default(0)
-  sold_quantity Int @default(0)
-  description String? @db.Text
-  size Int?
-  categoryId String
-  thumbnail String? @db.Text
-  rating Float @default(0)
-  isShow Boolean @default(true)
+  quantity       Int     @default(0)
+  sold_quantity  Int     @default(0)
+  description    String? @db.Text
+  size           Int?
+  categoryId     String
+  thumbnail      String? @db.Text
+  rating         Float   @default(0)
+  isShow         Boolean @default(true)
+  isFeatured     Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade) 
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) 
+  brand    Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   product_image ProductImage[]
-  
-  feedback Feedback[]
-  cart Cart[]
 
+  feedback Feedback[]
+  cart     Cart[]
 
   @@index([brandId, categoryId])
 }
 
 model Brand {
-  id String @id @default(uuid())
-  name String
+  id        String   @id @default(uuid())
+  name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   product Product[]
 }
 
 model Category {
-  id String @id @default(uuid())
-  name String
+  id        String   @id @default(uuid())
+  name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   product Product[]
-  post Post[]
+  post    Post[]
 }
 
 model ProductImage {
-  id String @id @default(uuid())
-  url String @db.Text
+  id        String @id @default(uuid())
+  url       String @db.Text
   productId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade) 
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }
 
 model Slider {
-  id String @id @default(uuid())
-  title String
-  note String? @db.Text
-  image String @db.Text
-  isShow Boolean 
-  backlink String @db.Text
-  titleTextColor String?
-  noteTextColor String?
+  id                    String  @id @default(uuid())
+  title                 String
+  note                  String? @db.Text
+  image                 String  @db.Text
+  isShow                Boolean
+  backlink              String  @db.Text
+  titleTextColor        String?
+  noteTextColor         String?
   backgroundSliderColor String?
-
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Post {
-  id String @id @default(uuid())
-  title String
+  id          String  @id @default(uuid())
+  title       String
   description String? @db.Text
-  briefInfo String? @db.Text
-  //productId String
-  thumbnail String? @db.Text
-  isShow Boolean @default(true)
-  userId String 
-  categoryId String
+  briefInfo   String? @db.Text
+  thumbnail   String? @db.Text
+  isShow      Boolean @default(true)
+  userId      String
+  categoryId  String
+  isFeatured  Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  //product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) 
-  //@@index([productId])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
   @@index([categoryId])
 }
 
@@ -176,17 +171,17 @@ enum SLIDER_STATUS {
 }
 
 model Feedback {
-  id String @id @default(uuid())
+  id          String  @id @default(uuid())
   description String? @db.Text
-  userId String
-  productId String
-  rating Int? @default(5)
+  userId      String
+  productId   String
+  rating      Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade) 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   image FeedbackImage[]
 
@@ -194,45 +189,58 @@ model Feedback {
 }
 
 model FeedbackImage {
-  id String @id @default(uuid())
-  url String @db.Text
+  id         String @id @default(uuid())
+  url        String @db.Text
   feedbackId String
 
-  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade) 
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
 
   @@index([feedbackId])
 }
 
 model Cart {
-  id String @id @default(uuid())
-  quantity Int @default(1)
-  userId String
+  id        String @id @default(uuid())
+  quantity  Int    @default(1)
+  userId    String
   productId String
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade) 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, productId])
 }
 
 model Order {
-  id String @id @default(uuid())
-  userId String
-  address String
-  status ORDER_STATUS @default(PENDING)
+  id            String       @id @default(uuid())
+
+  userId        String
+  address       String
+  name          String
+  gender        Gender
+  email         String
+  phoneNumber   String
+  
+  status        ORDER_STATUS @default(PENDING)
+  totalAmount   Int
+  notes         String?      @db.Text
+  paymentMethod PAYMENT_TYPE @default(CASH_ON_DELIVERY)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
-  order_detail OrderDetail[]
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderDetail OrderDetail[]
 
   @@index([userId])
 }
 
+enum PAYMENT_TYPE {
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+}
 
 enum ORDER_STATUS {
   PENDING
@@ -244,16 +252,22 @@ enum ORDER_STATUS {
 
 model OrderDetail {
   id String @id @default(uuid())
-  quantity Int
-  price Int
-  orderId String
-  productId String
-  thumbnail String @db.Text
-  brand String
-  size String
-  category String
 
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade) 
+  quantity      Int
+  originalPrice Int
+  discountPrice Int?
+  totalPrice    Int
+
+  thumbnail String @db.Text
+  brand     String
+  size      String
+  category  String
+
+  productId   String
+  productName String
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
 }

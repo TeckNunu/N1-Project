@@ -34,6 +34,7 @@ type FormType = {
     briefInfo?: string | null;
     categoryId: string | null;
     isShow: boolean | null;
+    isFeatured: boolean | null;
     thumbnail: string | null;
     thumbnailList?: UploadFile[];
 };
@@ -43,17 +44,12 @@ type PostRequestType = {
     description?: string | null;
     categoryId: string | null;
     isShow: boolean | null;
+    isFeatured: boolean | null;
     thumbnail: string | null;
     briefInfo?: string | null;
 };
 
-const PostFormModal: React.FC<Props> = ({
-    type,
-    title,
-    reload,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    postId,
-}) => {
+const PostFormModal: React.FC<Props> = ({ type, title, reload, postId }) => {
     const [form] = Form.useForm();
 
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
@@ -130,6 +126,7 @@ const PostFormModal: React.FC<Props> = ({
             form.setFieldsValue({
                 title: postInfo?.data?.title,
                 isShow: postInfo?.data?.isShow,
+                isFeatured: postInfo?.data?.isFeatured,
                 description: postInfo?.data?.description,
                 briefInfo: postInfo?.data?.briefInfo,
                 categoryId: postInfo?.data?.categoryId,
@@ -194,8 +191,15 @@ const PostFormModal: React.FC<Props> = ({
     };
 
     const onFinish: FormProps<FormType>['onFinish'] = async (values) => {
-        // eslint-disable-next-line @typescript-eslint/no-shadow
-        const { title, description, categoryId, isShow, briefInfo } = values;
+        const {
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            title,
+            description,
+            categoryId,
+            isShow,
+            isFeatured,
+            briefInfo,
+        } = values;
         if (type === 'CREATE') {
             const thumbnailList = values?.thumbnailList?.map(
                 (file) => file.originFileObj
@@ -208,6 +212,7 @@ const PostFormModal: React.FC<Props> = ({
             createPostTrigger({
                 title,
                 isShow,
+                isFeatured,
                 description,
                 briefInfo,
                 categoryId,
@@ -228,6 +233,7 @@ const PostFormModal: React.FC<Props> = ({
             const submitObj = {
                 title,
                 isShow,
+                isFeatured,
                 description,
                 briefInfo,
                 categoryId,
@@ -250,6 +256,7 @@ const PostFormModal: React.FC<Props> = ({
             const submitObj = {
                 title,
                 isShow,
+                isFeatured,
                 description,
                 briefInfo,
                 categoryId,
@@ -312,6 +319,12 @@ const PostFormModal: React.FC<Props> = ({
                             </Form.Item>
                             <Form.Item name="isShow" valuePropName="checked">
                                 <Checkbox>Show post on client page</Checkbox>
+                            </Form.Item>
+                            <Form.Item
+                                name="isFeatured"
+                                valuePropName="checked"
+                            >
+                                <Checkbox>Featured Post</Checkbox>
                             </Form.Item>
                             <div className="grid grid-cols-2 gap-x-10">
                                 <Form.Item<FormType>

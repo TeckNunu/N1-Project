@@ -43,6 +43,7 @@ type FormType = {
     isShow: boolean | null;
     thumbnailList?: UploadFile[];
     productImageList?: UploadFile[];
+    isFeatured?: boolean | null;
 };
 
 type ProductRequestType = {
@@ -57,6 +58,7 @@ type ProductRequestType = {
     isShow: boolean | null;
     thumbnail: string | null;
     product_image: string[];
+    isFeatured?: boolean | null;
 };
 
 const ProductFormModal: React.FC<Props> = ({
@@ -233,6 +235,7 @@ const ProductFormModal: React.FC<Props> = ({
             original_price,
             discount_price,
             description,
+            isFeatured,
         } = values;
 
         if (type === 'CREATE') {
@@ -266,6 +269,7 @@ const ProductFormModal: React.FC<Props> = ({
                 original_price,
                 discount_price,
                 description,
+                isFeatured,
                 thumbnail: thumbnailListResponse?.[0] ?? '',
                 product_image: productImageListRequest ?? [],
             });
@@ -308,6 +312,7 @@ const ProductFormModal: React.FC<Props> = ({
                 original_price,
                 discount_price,
                 description,
+                isFeatured,
                 thumbnail: newThumbnail?.[0] ?? '',
                 product_image:
                     [...filesUploaded, ...newProductImageRequest] ?? [],
@@ -374,9 +379,22 @@ const ProductFormModal: React.FC<Props> = ({
                             >
                                 <Input />
                             </Form.Item>
-                            <Form.Item name="isShow" valuePropName="checked">
-                                <Checkbox>Show product on client page</Checkbox>
-                            </Form.Item>
+                            <div className="grid grid-cols-2">
+                                <Form.Item<FormType>
+                                    name="isShow"
+                                    valuePropName="checked"
+                                >
+                                    <Checkbox>
+                                        Show product on client page
+                                    </Checkbox>
+                                </Form.Item>
+                                <Form.Item<FormType>
+                                    name="isFeatured"
+                                    valuePropName="checked"
+                                >
+                                    <Checkbox>Featured product</Checkbox>
+                                </Form.Item>
+                            </div>
                             <div className="grid grid-cols-2 gap-x-10">
                                 <Form.Item<FormType>
                                     label="Brand"

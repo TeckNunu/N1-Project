@@ -112,7 +112,7 @@ const RegisterModal = () => {
                 </div>
             </div>
             <Form
-                className="no-scrollbar max-h-[40vh] overflow-auto"
+                className="customScroll max-h-[40vh] overflow-auto px-8"
                 disabled={
                     loading || registerUserIsPending || verifyEmailIsPending
                 }

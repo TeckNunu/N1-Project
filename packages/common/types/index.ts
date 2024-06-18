@@ -21,3 +21,9 @@ export type Pagination = {
     current: number;
     pageSize: number;
 };
+
+export type QueryResponseGetOneType<T> = {
+    isOk?: boolean | null;
+    data?: T;
+    message?: string | null;
+};

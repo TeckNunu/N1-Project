@@ -36,3 +36,7 @@ export const EXPIRES_TOKEN = '2d';
 export const TOKEN_TYPE = 'Bearer';
 
 export const PAGE_SIZE: number = 5;
+
+export const TAKE_LATEST_CLIENT_DEFAULT = 10;
+
+export const TAKE_HOT_SEARCH_CLIENT_DEFAULT = 10;

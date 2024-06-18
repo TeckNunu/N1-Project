@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import { db } from '../../../lib/db';
+import { TAKE_HOT_SEARCH_CLIENT_DEFAULT } from '../../../constant';
 
 export const getListProductSelect = async (req: Request, res: Response) => {
-    const { search } = req.query;
-
     try {
         const listProduct = await db.product.findMany({
             select: {
@@ -15,11 +14,40 @@ export const getListProductSelect = async (req: Request, res: Response) => {
             },
         });
 
-        return res.status(201).json({
+        return res.status(200).json({
             isOk: true,
             data: listProduct,
             message: 'Get list product successfully!',
-            params: search,
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const getListProductFeatured = async (req: Request, res: Response) => {
+    try {
+        const listProduct = await db.product.findMany({
+            where: {
+                isShow: true,
+                isFeatured: true,
+            },
+            select: {
+                id: true,
+                name: true,
+                thumbnail: true,
+                description: true,
+                original_price: true,
+                discount_price: true,
+            },
+            orderBy: {
+                updatedAt: 'desc',
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: listProduct,
+            message: 'Get list product featured successfully!',
         });
     } catch (error) {
         return res.sendStatus(500);
@@ -31,6 +59,8 @@ type ProductConditions = {
     name?: {
         contains: string;
     };
+    isShow?: boolean; // Đảm bảo rằng cả hai truy vấn đều sử dụng điều kiện này
+    brandId?: string;
 };
 
 type SortCondition = {
@@ -38,7 +68,7 @@ type SortCondition = {
 };
 
 export const searchProducts = async (req: Request, res: Response) => {
-    const { categoryId, search, sortBy, sortOrder } = req.query;
+    const { categoryId, search, sortBy, sortOrder, brandId } = req.query;
     const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
     const pageSize = req.query.pageSize
         ? parseInt(req.query.pageSize as string, 10)
@@ -46,7 +76,7 @@ export const searchProducts = async (req: Request, res: Response) => {
 
     try {
         // Xây dựng điều kiện tìm kiếm
-        const conditions: ProductConditions = {};
+        const conditions: ProductConditions = { isShow: true };
         if (categoryId) {
             conditions.categoryId = String(categoryId);
         }
@@ -54,6 +84,9 @@ export const searchProducts = async (req: Request, res: Response) => {
             conditions.name = {
                 contains: String(search),
             };
+        }
+        if (brandId) {
+            conditions.brandId = String(brandId);
         }
 
         // Xây dựng điều kiện sắp xếp
@@ -76,7 +109,7 @@ export const searchProducts = async (req: Request, res: Response) => {
 
         // Truy vấn cơ sở dữ liệu với các điều kiện và phân trang
         const products = await db.product.findMany({
-            where: { ...conditions, isShow: true },
+            where: conditions,
             orderBy: orderBy.length ? orderBy : undefined,
             skip,
             take: pageSize,
@@ -132,6 +165,97 @@ export const getLatestProducts = async (req: Request, res: Response) => {
             isOk: true,
             data: latestProducts,
             message: 'Get latest products successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const getListHotSearchProduct = async (req: Request, res: Response) => {
+    const { search } = req.query;
+
+    try {
+        const listProduct = await db.product.findMany({
+            where: {
+                name: {
+                    contains: search ? String(search) : undefined,
+                },
+            },
+            select: {
+                id: true,
+                name: true,
+                thumbnail: true,
+                original_price: true,
+                discount_price: true,
+            },
+            orderBy: {
+                updatedAt: 'desc',
+            },
+            take: TAKE_HOT_SEARCH_CLIENT_DEFAULT,
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: listProduct,
+            message: 'Get list product successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const getProductPublicInfoById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const product = await db.product.findUnique({
+            where: {
+                id,
+                isShow: true,
+            },
+            select: {
+                id: true,
+                brand: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+                category: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+                original_price: true,
+                discount_price: true,
+                rating: true,
+                product_image: {
+                    select: {
+                        id: true,
+                        url: true,
+                    },
+                },
+                name: true,
+                quantity: true,
+                size: true,
+                sold_quantity: true,
+                description: true,
+            },
+        });
+
+        if (!product) {
+            return res.status(400).json({
+                isOk: false,
+                data: null,
+                message: 'This product does not exist!',
+            });
+        }
+
+        return res.status(200).json({
+            isOk: true,
+            data: product,
+            message: 'Get product successfully!',
         });
     } catch (error) {
         return res.sendStatus(500);

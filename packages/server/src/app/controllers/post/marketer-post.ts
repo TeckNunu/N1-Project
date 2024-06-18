@@ -10,6 +10,7 @@ type PostFilter = {
     isShow?: boolean;
     categoryId?: string;
     userId?: string;
+    isFeatured?: boolean;
 };
 
 type SortOrder = 'desc' | 'asc';
@@ -23,6 +24,7 @@ export const getListPostManage = async (req: Request, res: Response) => {
         userId,
         title,
         isShow,
+        isFeatured,
         orderName,
         order,
     } = req.query;
@@ -65,6 +67,9 @@ export const getListPostManage = async (req: Request, res: Response) => {
         if (isShow) {
             whereClause.isShow = isShow === 'true';
         }
+        if (isFeatured) {
+            whereClause.isFeatured = isFeatured === 'true';
+        }
 
         const select = {
             id: true,
@@ -84,6 +89,7 @@ export const getListPostManage = async (req: Request, res: Response) => {
             isShow: true,
             thumbnail: true,
             description: true,
+            isFeatured: true,
         };
 
         const total = await db.post.count({
@@ -123,8 +129,15 @@ export const getListPostManage = async (req: Request, res: Response) => {
 };
 
 export const createPost = async (req: Request, res: Response) => {
-    const { title, description, categoryId, thumbnail, isShow, briefInfo } =
-        req.body;
+    const {
+        title,
+        description,
+        categoryId,
+        thumbnail,
+        isShow,
+        briefInfo,
+        isFeatured,
+    } = req.body;
     const accessToken = await getToken(req);
     const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
     try {
@@ -135,6 +148,7 @@ export const createPost = async (req: Request, res: Response) => {
                 categoryId,
                 thumbnail,
                 isShow,
+                isFeatured,
                 briefInfo,
                 userId: tokenDecoded.id,
             },
@@ -152,8 +166,15 @@ export const createPost = async (req: Request, res: Response) => {
 
 export const updatePost = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { title, description, categoryId, thumbnail, isShow, briefInfo } =
-        req.body;
+    const {
+        title,
+        description,
+        categoryId,
+        thumbnail,
+        isShow,
+        briefInfo,
+        isFeatured,
+    } = req.body;
 
     try {
         const post = await db.post.update({
@@ -166,6 +187,7 @@ export const updatePost = async (req: Request, res: Response) => {
                 categoryId,
                 thumbnail,
                 isShow,
+                isFeatured,
                 briefInfo,
             },
         });
@@ -218,6 +240,30 @@ export const updatePostStatus = async (req: Request, res: Response) => {
             isOk: true,
             data: post,
             message: 'Change post status successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const updatePostFeatured = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { isFeatured } = req.body;
+
+    try {
+        const post = await db.post.update({
+            where: {
+                id,
+            },
+            data: {
+                isFeatured,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: post,
+            message: 'Change post featured successfully!',
         });
     } catch (error) {
         return res.sendStatus(500);

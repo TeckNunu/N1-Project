@@ -53,6 +53,10 @@ const PostDetailAll: React.FC<Props> = ({ data }) => {
                 value={data?.isShow ? 'SHOW' : 'HIDE'}
             />
             <InfoItem
+                title="Featured Post"
+                value={data?.isShow ? 'TRUE' : 'FALSE'}
+            />
+            <InfoItem
                 render="IMAGE"
                 title="Thumbnail"
                 value={data?.thumbnail}

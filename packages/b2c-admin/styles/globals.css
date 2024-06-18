@@ -10,7 +10,7 @@ body,
 
 @layer base {
     html {
-        @apply text-slate-700;
+        @apply text-sm text-slate-700;
     }
     /* Use Tailwind utilities for scrollbar styles */
     ::-webkit-scrollbar {

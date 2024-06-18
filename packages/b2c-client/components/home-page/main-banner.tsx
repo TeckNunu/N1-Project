@@ -46,6 +46,10 @@ const MainBanner = () => {
         }
     };
 
+    if (data?.data?.length === 0) {
+        return null;
+    }
+
     return (
         <Spin spinning={isLoading}>
             <div

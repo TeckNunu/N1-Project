@@ -1,8 +1,7 @@
 import React from 'react';
-import BlogPage from '~/components/user/blog';
 
 const ListBlogPage = () => {
-    return <BlogPage />;
+    return <div>Blog page</div>;
 };
 
 export default ListBlogPage;

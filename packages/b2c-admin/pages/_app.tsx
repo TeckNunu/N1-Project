@@ -2,7 +2,7 @@ import '~/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
 import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Spin } from 'antd';
+import { Spin } from 'common/components/spin';
 import { AxiosError } from 'axios';
 import Cookie from 'js-cookie';
 import type { NextPage } from 'next';
@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { ConfigProvider } from 'antd';
 import DefaultLayout from '~/components/layouts/default-layout';
 import AdminLayout from '~/components/layouts/admin-layout';
 import MarketerLayout from '~/components/layouts/marketer-layout';
@@ -47,7 +48,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
 
     const user = cmsUser ? JSON.parse(cmsUser) : null;
 
-    const role = user?.data?.role ?? null;
+    const role = user?.role ?? null;
 
     const router = useRouter();
 
@@ -101,11 +102,19 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
     }
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <Spin fullscreen spinning={loading} />
-            <ToastContainer autoClose={2000} />
-            {getLayout(<Component {...pageProps} />)}
-        </QueryClientProvider>
+        <ConfigProvider
+            theme={{
+                token: {
+                    fontSize: 12,
+                },
+            }}
+        >
+            <QueryClientProvider client={queryClient}>
+                <Spin spinning={loading} />
+                <ToastContainer autoClose={2000} />
+                {getLayout(<Component {...pageProps} />)}
+            </QueryClientProvider>
+        </ConfigProvider>
     );
 }
 

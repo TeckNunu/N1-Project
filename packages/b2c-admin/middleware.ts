@@ -50,10 +50,7 @@ export default async function middleware(req: NextRequest) {
         nextUrl.pathname.startsWith(path)
     );
 
-    if (
-        protectedRoute &&
-        !hasRole(user?.data, protectedRoutes[protectedRoute])
-    ) {
+    if (protectedRoute && !hasRole(user, protectedRoutes[protectedRoute])) {
         // Redirect unauthorized users to a designated page (e.g., /unauthorized)
         return NextResponse.redirect(new URL('/404', nextUrl.origin));
     }

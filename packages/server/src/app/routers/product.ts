@@ -7,10 +7,15 @@ import {
     getListProductManage,
     getProductById,
     updateProduct,
+    updateProductFeatured,
+    updateProductStatus,
 } from '../controllers/product/cms-product';
 import {
     getLatestProducts,
+    getListHotSearchProduct,
+    getListProductFeatured,
     getListProductSelect,
+    getProductPublicInfoById,
     searchProducts,
 } from '../controllers/product';
 
@@ -41,8 +46,24 @@ export default (router: Router) => {
         isMarketer,
         deleteProductById
     );
+    router.put(
+        '/product/updateStatus/:id',
+        isAuthenticated,
+        isMarketer,
+        updateProductStatus
+    );
+    router.put(
+        '/product-updateFeatured/:id',
+        isAuthenticated,
+        isMarketer,
+        updateProductFeatured
+    );
+
     // Public route
     router.get('/product/select', getListProductSelect);
+    router.get('/product-featured', getListProductFeatured);
     router.get('/product/search', searchProducts);
     router.get('/product/latest', getLatestProducts);
+    router.get('/product-hot-search', getListHotSearchProduct);
+    router.get('/productPublicInfo/:id', getProductPublicInfoById);
 };
