@@ -225,6 +225,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {latestProducts.map((product) => (
                     <LatestProductCard
                         discount_price={product.discount_price}
+                        id={product.id}
                         key={product.id}
                         name={product.name}
                         thumbnail={product.thumbnail}
