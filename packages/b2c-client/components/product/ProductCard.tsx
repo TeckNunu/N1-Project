@@ -85,7 +85,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     />
                 }
                 hoverable
-                onClick={handleCardClick} // Thêm sự kiện onClick cho thẻ Card
+                onClick={handleCardClick}
             >
                 <Card.Meta
                     description={
@@ -104,7 +104,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             ? discount_price
                             : original_price
                     )}
-                    {/* {discount_price !== null ? discount_price : original_price}đ */}
                 </Typography.Paragraph>
                 <div className={styles.buttonContainer}>
                     <Button

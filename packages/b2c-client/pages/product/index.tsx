@@ -19,7 +19,7 @@ type SearchParams = {
     sortOrder?: string;
     categoryId?: string;
     search?: string;
-    brandId?: string;
+    brandIds?: string[];
 };
 
 const Products: NextPage = () => {
@@ -69,7 +69,7 @@ const Products: NextPage = () => {
             sortOrder: params.sortOrder ?? '',
             category: params.categoryId ?? '',
             search: params.search ?? '',
-            brand: params.brandId ?? '',
+            brand: params.brandIds?.join(',') ?? '',
         };
 
         // Remove empty string values from query
@@ -92,14 +92,16 @@ const Products: NextPage = () => {
     };
 
     useEffect(() => {
+        const brandIds = (routerQuery.brand as string)?.split(',') || [];
+
         const params: SearchParams = {
             page: Number(routerQuery.page) || 1,
             pageSize: Number(routerQuery.pageSize) || PAGE_SIZE_CLIENT_PRODUCT,
-            sortBy: routerQuery.sort as string,
-            sortOrder: routerQuery.sortOrder as string,
+            sortBy: (routerQuery.sort as string) || 'updatedAt',
+            sortOrder: (routerQuery.sortOrder as string) || 'desc',
             categoryId: routerQuery.category as string,
             search: routerQuery.search as string,
-            brandId: routerQuery.brand as string,
+            brandIds: brandIds.length > 0 ? brandIds : undefined,
         };
         fetchProducts(params);
     }, [router.query]);
@@ -111,7 +113,7 @@ const Products: NextPage = () => {
         categoryParam?: string,
         searchParam?: string,
         pageSizeParam?: number,
-        brandParam?: string
+        brandParam?: string[]
     ) => {
         const params: SearchParams = {
             page,
@@ -122,7 +124,7 @@ const Products: NextPage = () => {
             sortOrder: sortOrderParam ?? (routerQuery.sortOrder as string),
             categoryId: categoryParam ?? (routerQuery.category as string),
             search: searchParam ?? (routerQuery.search as string),
-            brandId: brandParam ?? (routerQuery.brand as string),
+            brandIds: brandParam ?? (routerQuery.brand as string)?.split(','),
         };
 
         updateUrlAndFetchProducts(params);
@@ -150,7 +152,7 @@ const Products: NextPage = () => {
                 <Sidebar
                     brands={brands}
                     categories={categories}
-                    currentBrand={routerQuery.brand as string}
+                    currentBrand={(routerQuery.brand as string)?.split(',')}
                     currentCategory={routerQuery.category as string}
                     currentSort={routerQuery.sort as string}
                     currentSortOrder={routerQuery.sortOrder as string}
@@ -176,7 +178,7 @@ const Products: NextPage = () => {
                             cat,
                             routerQuery.search as string,
                             undefined,
-                            routerQuery.brand as string
+                            (routerQuery.brand as string)?.split(',')
                         );
                     }}
                 />
@@ -193,7 +195,7 @@ const Products: NextPage = () => {
                                 routerQuery.category as string,
                                 routerQuery.search as string,
                                 undefined,
-                                routerQuery.brand as string
+                                (routerQuery.brand as string)?.split(',')
                             );
                         }}
                         setSortOrder={(newSortOrder) => {
@@ -204,7 +206,7 @@ const Products: NextPage = () => {
                                 routerQuery.category as string,
                                 routerQuery.search as string,
                                 undefined,
-                                routerQuery.brand as string
+                                (routerQuery.brand as string)?.split(',')
                             );
                         }}
                     />
@@ -219,7 +221,7 @@ const Products: NextPage = () => {
                                     routerQuery.category as string,
                                     routerQuery.search as string,
                                     newPageSize,
-                                    routerQuery.brand as string
+                                    (routerQuery.brand as string)?.split(',')
                                 )
                             }
                             pageSize={
