@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Checkbox, Input, Layout, Menu } from 'antd';
+import { useRouter } from 'next/router';
 import LatestProductCard from './LatestProductCard';
 import styles from '../../styles/Sidebar.module.css';
 
@@ -60,6 +61,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     const [selectedBrands, setSelectedBrands] = useState<string[]>(
         currentBrand || []
     );
+
+    const router = useRouter();
 
     useEffect(() => {
         setSelectedCategory(currentCategory);
@@ -133,6 +136,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         ? categories
         : categories.slice(0, 3);
     const visibleBrands = expandedBrands ? brands : brands.slice(0, 3);
+
+    const handleContactClick = () => {
+        router.push('/contact');
+    };
 
     return (
         <Sider className={styles.sidebar} width={240}>
@@ -240,6 +247,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <li>Email: contact@example.com</li>
                     <li>Phone: +123 456 789</li>
                     <li>Address: 123 Main Street</li>
+                    <li>
+                        <button
+                            className={styles.contactDetailButton}
+                            onClick={handleContactClick}
+                            type="button"
+                        >
+                            Thông tin chi tiết
+                        </button>
+                    </li>
                 </ul>
             </div>
         </Sider>

@@ -130,6 +130,20 @@
     margin-bottom: 8px;
 }
 
+.contactDetailButton {
+    background: none;
+    border: none;
+    color: #1890ff;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 0;
+    font: inherit;
+}
+
+.contactDetailButton:hover {
+    color: #40a9ff;
+}
+
 .checkboxGroup {
     display: flex;
     flex-direction: column;
