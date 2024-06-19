@@ -12,7 +12,7 @@ import { useAuth } from '~/hooks/useAuth';
 import { Product } from '~/types/product';
 
 import FeedbackModal from '../modals/feedback-modal';
-import { useCartQuery } from '~/hooks/useCartQuery';
+import useCartStore from '~/hooks/useCartStore';
 
 type ProductCardProps = Omit<Product, 'updatedAt'>;
 
@@ -29,7 +29,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const router = useRouter();
     const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
 
-    const { reload } = useCartQuery();
+    const { addProduct } = useCartStore();
 
     const addToCart = useMutation({
         mutationFn: async (data: { productId: string; quantity: number }) => {
@@ -41,9 +41,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
         },
         onSuccess: () => {
             toast.success('Product added to cart successfully!');
-            setTimeout(() => {
-                reload();
-            }, 200);
         },
         onError: () => {
             toast.error('Failed to add product to cart.');
@@ -58,26 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         if (auth && (auth as { access_token: string }).access_token) {
             addToCart.mutate(productData);
         } else {
-            // Save to localStorage
-            const now = new Date().toISOString();
-            const localProductData = {
-                ...productData,
-                createdAt: now,
-                updatedAt: now,
-            };
-
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const existingProductIndex = cart.findIndex(
-                (item: { productId: string }) => item.productId === id
-            );
-            if (existingProductIndex > -1) {
-                cart[existingProductIndex].quantity += 1;
-                cart[existingProductIndex].updatedAt = now;
-            } else {
-                cart.push(localProductData);
-            }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            toast.success('Product added to cart!');
+            addProduct(productData);
         }
     };
 
