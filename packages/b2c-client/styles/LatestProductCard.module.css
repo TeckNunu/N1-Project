@@ -47,3 +47,9 @@
     font-size: 14px;
     color: #f5222d;
 }
+
+.originalPrice {
+    text-decoration: line-through;
+    color: #888;
+    margin-bottom: 4px;
+}

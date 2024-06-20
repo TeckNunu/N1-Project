@@ -20,6 +20,7 @@ type SidebarProps = {
         id: string;
         name: string;
         discount_price: number;
+        original_price: number;
         thumbnail: string;
     }[];
     setCategory: (category: string) => void;
@@ -235,6 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         id={product.id}
                         key={product.id}
                         name={product.name}
+                        original_price={product.original_price}
                         thumbnail={product.thumbnail}
                     />
                 ))}
