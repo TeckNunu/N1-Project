@@ -13,6 +13,7 @@ import { Product } from '~/types/product';
 
 import FeedbackModal from '../modals/feedback-modal';
 import { useCartQuery } from '~/hooks/useCartQuery';
+import useCartStore from '~/hooks/useCartStore';
 
 type ProductCardProps = Omit<Product, 'updatedAt'>;
 
@@ -30,6 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
 
     const { reload } = useCartQuery();
+    const { addProduct } = useCartStore();
 
     const addToCart = useMutation({
         mutationFn: async (data: { productId: string; quantity: number }) => {
@@ -58,26 +60,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
         if (auth && (auth as { access_token: string }).access_token) {
             addToCart.mutate(productData);
         } else {
-            // Save to localStorage
-            const now = new Date().toISOString();
-            const localProductData = {
-                ...productData,
-                createdAt: now,
-                updatedAt: now,
-            };
-
-            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const existingProductIndex = cart.findIndex(
-                (item: { productId: string }) => item.productId === id
-            );
-            if (existingProductIndex > -1) {
-                cart[existingProductIndex].quantity += 1;
-                cart[existingProductIndex].updatedAt = now;
-            } else {
-                cart.push(localProductData);
-            }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            toast.success('Product added to cart!');
+            // Add to Zustand store instead of localStorage
+            addProduct(productData);
         }
     };
 
@@ -95,6 +79,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
     };
 
     const imageUrl = thumbnail ? getImageUrl(thumbnail) : '/images/sp1.jpg';
+    const showDiscountPrice =
+        discount_price !== null && discount_price !== original_price;
+
     return (
         <>
             <Card
@@ -117,23 +104,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     }
                     title={<div className={styles.metaTitle}>{name}</div>}
                 />
-                <Typography.Paragraph className={styles.originalPrice}>
+                <Typography.Paragraph
+                    className={styles.originalPrice}
+                    style={{
+                        visibility: showDiscountPrice ? 'visible' : 'hidden',
+                    }}
+                >
                     <del>{currencyFormatter(original_price)}</del>
                 </Typography.Paragraph>
                 <Typography.Paragraph className={styles.discountPrice}>
                     {currencyFormatter(
-                        discount_price !== null
-                            ? discount_price
-                            : original_price
+                        showDiscountPrice ? discount_price : original_price
                     )}
-                    {/* {discount_price !== null ? discount_price : original_price}đ */}
                 </Typography.Paragraph>
                 <div className={styles.buttonContainer}>
-                    <Button
-                        className={styles.buyButton}
-                        onClick={handleBuy}
-                        type="primary"
-                    >
+                    <Button onClick={handleBuy} type="primary">
                         Mua
                     </Button>
                     <Button

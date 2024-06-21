@@ -29,8 +29,7 @@ import DeleteSliderAlert from './delete-slider-alert';
 import SliderFormModal from './slider-form-modal';
 
 type FormType = {
-    searchByTitle?: string;
-    searchByBacklink?: string;
+    search?: string;
     isShow?: boolean;
 };
 
@@ -106,8 +105,6 @@ const SliderList = () => {
             key: 'id',
             width: 180,
             align: 'center',
-            sorter: true,
-            sortOrder: sortedInfo.columnKey === 'id' ? sortedInfo.order : null,
         },
         {
             title: 'Title',
@@ -139,8 +136,13 @@ const SliderList = () => {
             sortOrder:
                 sortedInfo.columnKey === 'backlink' ? sortedInfo.order : null,
             render: (value: string) => (
-                <div className="w-full flex-wrap">
-                    <a href={value} rel="noreferrer" target="_blank">
+                <div className="max-h-[200px] w-full overflow-hidden ">
+                    <a
+                        className="inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap "
+                        href={value}
+                        rel="noreferrer"
+                        target="_blank"
+                    >
                         {value}
                     </a>
                 </div>
@@ -238,22 +240,13 @@ const SliderList = () => {
                     wrapperCol={{ span: 18 }}
                 >
                     <div className="grid flex-1 grid-cols-2 justify-end gap-x-5 xl:grid-cols-3">
-                        <Form.Item<FormType>
-                            label="Search by title"
-                            name="searchByTitle"
-                        >
-                            <Input placeholder="Enter slider title..." />
+                        <Form.Item<FormType> label="Search " name="search">
+                            <Input
+                                allowClear
+                                placeholder="Enter slider title or backlink..."
+                            />
                         </Form.Item>
-                        <Form.Item<FormType>
-                            label="Search by backlink"
-                            name="searchByBacklink"
-                        >
-                            <Input placeholder="Enter slider backlink..." />
-                        </Form.Item>
-                        <Form.Item<FormType>
-                            label="Show on client"
-                            name="isShow"
-                        >
+                        <Form.Item<FormType> label="Status" name="isShow">
                             <Select
                                 allowClear
                                 placeholder="Choose show on client..."
@@ -281,7 +274,10 @@ const SliderList = () => {
                             <Button
                                 htmlType="reset"
                                 icon={<SyncOutlined />}
-                                onClick={() => form.resetFields()}
+                                onClick={() => {
+                                    form.resetFields();
+                                    form.submit();
+                                }}
                                 type="primary"
                             >
                                 <span className="pr-2">Reset</span>

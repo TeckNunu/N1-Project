@@ -203,6 +203,9 @@ const SliderFormModal: React.FC<Props> = ({
                 note: sliderDetail?.data?.note,
                 backlink: sliderDetail?.data?.backlink,
                 isShow: sliderDetail?.data?.isShow,
+                titleTextColor: sliderDetail.data?.titleTextColor,
+                noteTextColor: sliderDetail.data?.noteTextColor,
+                backgroundSliderColor: sliderDetail.data?.backgroundSliderColor,
                 imageList: sliderDetail?.data?.image
                     ? [
                           {
@@ -372,20 +375,12 @@ const SliderFormModal: React.FC<Props> = ({
                                     />
                                 )}
                             </div>
-                            <div className="grid grid-cols-2 gap-x-10">
-                                <Form.Item<FormType> label="Title" name="title">
-                                    <Input
-                                        readOnly={type === 'VIEW' ?? false}
-                                        size="large"
-                                    />
-                                </Form.Item>
-                                <Form.Item label="Back link" name="backlink">
-                                    <Input
-                                        readOnly={type === 'VIEW' ?? false}
-                                        size="large"
-                                    />
-                                </Form.Item>
-                            </div>
+                            <Form.Item<FormType> label="Title" name="title">
+                                <Input
+                                    readOnly={type === 'VIEW' ?? false}
+                                    size="large"
+                                />
+                            </Form.Item>
 
                             <Form.Item<FormType>
                                 getValueFromEvent={(color) => {
@@ -394,7 +389,19 @@ const SliderFormModal: React.FC<Props> = ({
                                 label="Title text color"
                                 name="titleTextColor"
                             >
-                                <ColorPicker showText />
+                                <ColorPicker
+                                    disabled={type === 'VIEW'}
+                                    showText
+                                />
+                            </Form.Item>
+
+                            <Form.Item label="Backlink" name="backlink">
+                                <Input.TextArea
+                                    readOnly={type === 'VIEW' ?? false}
+                                    rows={5}
+                                    size="large"
+                                    style={{ resize: 'none' }}
+                                />
                             </Form.Item>
 
                             <Form.Item label="Note" name="note">
@@ -412,7 +419,10 @@ const SliderFormModal: React.FC<Props> = ({
                                 label="Note text color"
                                 name="noteTextColor"
                             >
-                                <ColorPicker showText />
+                                <ColorPicker
+                                    disabled={type === 'VIEW'}
+                                    showText
+                                />
                             </Form.Item>
 
                             <Form.Item<FormType>
@@ -422,7 +432,10 @@ const SliderFormModal: React.FC<Props> = ({
                                 label="Back ground color"
                                 name="backgroundSliderColor"
                             >
-                                <ColorPicker showText />
+                                <ColorPicker
+                                    disabled={type === 'VIEW'}
+                                    showText
+                                />
                             </Form.Item>
 
                             <Form.Item name="isShow" valuePropName="checked">
@@ -441,17 +454,31 @@ const SliderFormModal: React.FC<Props> = ({
                             </Form.Item>
 
                             <Form.Item>
-                                <Button
-                                    hidden={type === 'VIEW'}
-                                    htmlType="submit"
-                                    loading={
-                                        createSliderIsPending ||
-                                        updateSliderIsPending
-                                    }
-                                    type="primary"
-                                >
-                                    {type === 'CREATE' ? 'Create' : 'Update'}
-                                </Button>
+                                <div className="flex gap-4">
+                                    <Button
+                                        loading={
+                                            createSliderIsPending ||
+                                            updateSliderIsPending
+                                        }
+                                        onClick={() => setIsOpenModal(false)}
+                                        type="default"
+                                    >
+                                        Return
+                                    </Button>
+                                    <Button
+                                        hidden={type === 'VIEW'}
+                                        htmlType="submit"
+                                        loading={
+                                            createSliderIsPending ||
+                                            updateSliderIsPending
+                                        }
+                                        type="primary"
+                                    >
+                                        {type === 'CREATE'
+                                            ? 'Create'
+                                            : 'Update'}
+                                    </Button>
+                                </div>
                             </Form.Item>
                         </Form>
                     </div>

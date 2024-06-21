@@ -2,6 +2,15 @@ import { Router } from 'express';
 
 import { isAuthenticated, isMarketer } from '../../middlewares';
 import {
+    getLatestProducts,
+    getListHotSearchProduct,
+    getListProductCart,
+    getListProductFeatured,
+    getListProductSelect,
+    getProductPublicInfoById,
+    searchProducts,
+} from '../controllers/product';
+import {
     createProduct,
     deleteProductById,
     getListProductManage,
@@ -10,14 +19,6 @@ import {
     updateProductFeatured,
     updateProductStatus,
 } from '../controllers/product/cms-product';
-import {
-    getLatestProducts,
-    getListHotSearchProduct,
-    getListProductFeatured,
-    getListProductSelect,
-    getProductPublicInfoById,
-    searchProducts,
-} from '../controllers/product';
 
 export default (router: Router) => {
     // Auth route
@@ -66,4 +67,5 @@ export default (router: Router) => {
     router.get('/product/latest', getLatestProducts);
     router.get('/product-hot-search', getListHotSearchProduct);
     router.get('/productPublicInfo/:id', getProductPublicInfoById);
+    router.get('/list-product-cart', getListProductCart);
 };

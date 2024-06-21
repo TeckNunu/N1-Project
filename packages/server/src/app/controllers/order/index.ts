@@ -173,7 +173,61 @@ export const editOrderInformation = async (req: Request, res: Response) => {
     }
 };
 
-// export const updateOrderProduct = async (req: Request, res: Response) => {
-//     const { id } = req.params;
-//     const { name, gender, email, phoneNumber, address } = req.body;
-// };
+export const updateOrder = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const {
+        quantity,
+        originalPrice,
+        discountPrice,
+        totalPrice,
+        thumbnail,
+        brand,
+        size,
+        category,
+        productId,
+        productName,
+    } = req.body;
+    try {
+        const orderExisted = await db.order.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!orderExisted) {
+            return res.status(403).json({
+                message: 'Đơn hàng không tìm thấy!',
+            });
+        }
+
+        await db.orderDetail.deleteMany({
+            where: {
+                orderId: id,
+            },
+        });
+
+        const orderUpdated = await db.orderDetail.create({
+            data: {
+                orderId: id,
+                quantity,
+                originalPrice,
+                discountPrice,
+                totalPrice,
+                thumbnail,
+                brand,
+                size,
+                category,
+                productId,
+                productName,
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            data: orderUpdated,
+            message: 'Cập nhật đơn hàng thành công',
+        });
+    } catch (e) {
+        return res.sendStatus(500);
+    }
+};

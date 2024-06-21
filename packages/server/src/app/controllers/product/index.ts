@@ -59,8 +59,10 @@ type ProductConditions = {
     name?: {
         contains: string;
     };
-    isShow?: boolean; // Đảm bảo rằng cả hai truy vấn đều sử dụng điều kiện này
-    brandId?: string;
+    brandId?: {
+        in: string[];
+    };
+    isShow?: boolean;
 };
 
 type SortCondition = {
@@ -68,7 +70,7 @@ type SortCondition = {
 };
 
 export const searchProducts = async (req: Request, res: Response) => {
-    const { categoryId, search, sortBy, sortOrder, brandId } = req.query;
+    const { categoryId, search, sortBy, sortOrder, brandIds } = req.query;
     const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
     const pageSize = req.query.pageSize
         ? parseInt(req.query.pageSize as string, 10)
@@ -85,8 +87,11 @@ export const searchProducts = async (req: Request, res: Response) => {
                 contains: String(search),
             };
         }
-        if (brandId) {
-            conditions.brandId = String(brandId);
+        if (brandIds) {
+            const brandIdsArray = Array.isArray(brandIds)
+                ? (brandIds as string[])
+                : [String(brandIds)];
+            conditions.brandId = { in: brandIdsArray };
         }
 
         // Xây dựng điều kiện sắp xếp
@@ -241,6 +246,7 @@ export const getProductPublicInfoById = async (req: Request, res: Response) => {
                 size: true,
                 sold_quantity: true,
                 description: true,
+                thumbnail: true,
             },
         });
 
@@ -256,6 +262,39 @@ export const getProductPublicInfoById = async (req: Request, res: Response) => {
             isOk: true,
             data: product,
             message: 'Get product successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const getListProductCart = async (req: Request, res: Response) => {
+    const { listProductId } = req.query;
+
+    if (!Array.isArray(listProductId) || listProductId.length === 0) {
+        return res
+            .status(400)
+            .json({ message: 'Invalid or empty product ID list' });
+    }
+
+    try {
+        const products = await db.product.findMany({
+            where: {
+                id: {
+                    in: listProductId as string[],
+                },
+            },
+            select: {
+                id: true,
+                discount_price: true,
+                original_price: true,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: products,
+            message: 'Total price calculated successfully!',
         });
     } catch (error) {
         return res.sendStatus(500);

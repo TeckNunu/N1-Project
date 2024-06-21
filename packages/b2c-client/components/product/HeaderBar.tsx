@@ -13,7 +13,9 @@ type HeaderBarProps = {
         sort?: string,
         sortOrder?: string,
         category?: string,
-        searchTerm?: string
+        searchTerm?: string,
+        pageSize?: number,
+        brand?: string[]
     ) => void;
     currentSort: string;
     currentSortOrder: string;
@@ -40,16 +42,21 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
     }, [currentSort, currentSortOrder]);
 
     const handleSortChange = (sort: string, sortOrder: string) => {
-        setSort(sort);
-        setSortOrder(sortOrder);
-        handleSearch(1, sort, sortOrder);
-    };
-
-    const toggleSelectItem = (key: string) => {
-        if (selectedItems.includes(key)) {
-            setSelectedItems(selectedItems.filter((item) => item !== key));
+        if (
+            selectedItems.includes(`${sort}-${sortOrder}`) ||
+            (sort === 'updatedAt' &&
+                sortOrder === 'desc' &&
+                selectedItems.includes('2'))
+        ) {
+            setSort('');
+            setSortOrder('');
+            handleSearch(1);
+            setSelectedItems([]);
         } else {
-            setSelectedItems([...selectedItems, key]);
+            setSort(sort);
+            setSortOrder(sortOrder);
+            handleSearch(1, sort, sortOrder);
+            setSelectedItems([`${sort}-${sortOrder}`]);
         }
     };
 
@@ -65,10 +72,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
                     <Menu.Item
                         className={`${styles.menuItem} ${selectedItems.includes('2') ? styles.active : ''}`}
                         key="2"
-                        onClick={() => {
-                            toggleSelectItem('2');
-                            handleSortChange('updatedAt', 'desc');
-                        }}
+                        onClick={() => handleSortChange('updatedAt', 'desc')}
                     >
                         Mới Nhất
                     </Menu.Item>
@@ -81,9 +85,6 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
                                     handleSortChange(
                                         'discount_price',
                                         sortOrder
-                                    );
-                                    toggleSelectItem(
-                                        `discount_price-${sortOrder}`
                                     );
                                 }}
                             >

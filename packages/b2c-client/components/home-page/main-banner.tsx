@@ -167,7 +167,7 @@ const MainBanner = () => {
                                     >
                                         <div>
                                             <div
-                                                className="block max-w-[600px] text-[42px] font-bold uppercase leading-[45px]"
+                                                className="block max-w-[800px] text-[42px] font-bold uppercase leading-[45px]"
                                                 style={{
                                                     color:
                                                         item?.titleTextColor ??

@@ -276,11 +276,17 @@ export const senMailResetPassword = async (req: Request, res: Response) => {
         return res.status(404).json({ message: 'User not found!' });
     }
 
+    const token = jwt.sign(
+        { id: user.id, email: user.email, name: user.name },
+        TOKEN_KEY,
+        { expiresIn: 900 } // 15 minutes
+    );
+
     const subject = 'Request to reset password';
     const title = `Hi ${user.name},`;
     const mainContent =
         'You received this email because we received a request to reset your password for your account. Click to button bellow to reset your password.';
-    const link = `http://localhost:3000/reset-password?email=${email}`;
+    const link = `http://localhost:3000/reset-password?token=${token}`;
     const label = 'Click here to reset password';
     const secondContent = `If you did not request this verification, you can safely ignore this email. Your account will not be affected.<br>
         Best regards,<br>
@@ -299,13 +305,13 @@ export const senMailResetPassword = async (req: Request, res: Response) => {
     return res.status(200).json({ message: 'Email sent successfully!' });
 };
 
-export const changePassword = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+export const resetPassword = async (req: Request, res: Response) => {
+    const { id, password } = req.body;
 
-    const user = await db.user.findUnique({ where: { email: String(email) } });
+    const user = await db.user.findUnique({ where: { id: String(id) } });
 
     if (!user) {
-        return res.status(404).json({ message: 'User not found!' });
+        return res.status(404).json({ message: 'Không tìm thấy người dùng!' });
     }
 
     const hashedPassword = await hashSync(password, SALT);
@@ -317,7 +323,7 @@ export const changePassword = async (req: Request, res: Response) => {
         },
     });
 
-    return res.status(200).json({ message: 'Change password successfully!' });
+    return res.status(200).json({ message: 'Đặt lại mật khẩu thành công!' });
 };
 
 // eslint-disable-next-line consistent-return

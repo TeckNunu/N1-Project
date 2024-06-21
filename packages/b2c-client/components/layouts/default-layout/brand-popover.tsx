@@ -46,7 +46,7 @@ const BrandPopover = () => {
 
     return (
         <Popover content={content} placement="bottom" title="" zIndex={50}>
-            <Link className="uppercase" href="/product">
+            <Link className="font-semibold uppercase" href="/product">
                 Thương hiệu
             </Link>
         </Popover>

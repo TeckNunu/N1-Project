@@ -86,7 +86,7 @@ export const getListLatestPost = async (req: Request, res: Response) => {
                 thumbnail: true,
             },
             orderBy: {
-                updatedAt: 'asc',
+                updatedAt: 'desc',
             },
         });
 
@@ -114,7 +114,7 @@ export const getListFeaturedPost = async (req: Request, res: Response) => {
                 thumbnail: true,
             },
             orderBy: {
-                updatedAt: 'asc',
+                updatedAt: 'desc',
             },
         });
 

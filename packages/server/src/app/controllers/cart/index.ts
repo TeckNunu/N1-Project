@@ -34,13 +34,33 @@ export const getListCart = async (req: Request, res: Response) => {
                 product: true,
             },
             orderBy: {
-                productId: 'asc',
+                createdAt: 'desc',
             },
         });
         return res.status(200).json({
             isOk: true,
             data: listCart,
             message: 'Get list cart successfully!',
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error!' });
+    }
+};
+
+export const getContactUser = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+    const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+
+    try {
+        const user = await db.user.findUnique({
+            where: {
+                id: tokenDecoded.id,
+            },
+        });
+        return res.status(200).json({
+            isOk: true,
+            data: user,
+            message: 'Get user  successfully!',
         });
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error!' });
@@ -130,7 +150,7 @@ export const updateQuantity = async (req: Request, res: Response) => {
     const { quantity } = req.body;
 
     try {
-        const post = await db.cart.update({
+        const cart = await db.cart.update({
             where: {
                 id,
             },
@@ -141,7 +161,7 @@ export const updateQuantity = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             isOk: true,
-            data: post,
+            data: cart,
             message: 'Change quantity successfully!',
         });
     } catch (error) {

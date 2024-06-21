@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input } from 'antd';
 import Button from 'common/components/button';
 import { useRouter } from 'next/router';
@@ -6,18 +6,39 @@ import { AxiosError, AxiosResponse } from 'axios';
 import { toast } from 'react-toastify';
 import * as request from 'common/utils/http-request';
 import { useMutation } from '@tanstack/react-query';
+import { jwtDecode } from 'jwt-decode';
 
 const ResetPasswordForm: React.FC = () => {
     const router = useRouter();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const { email } = router.query;
+    const { token } = router.query;
+    const [isTokenValid, setIsTokenValid] = useState<boolean>();
+    const [userId, setUserId] = useState<string>();
+
+    const handleToken = (accessToken: string) => {
+        const decoded: { id: string; exp: number } = jwtDecode(accessToken);
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        if (decoded.exp < currentTime) {
+            setIsTokenValid(false);
+            return;
+        }
+        setIsTokenValid(true);
+        setUserId(decoded.id);
+    };
+
+    useEffect(() => {
+        if (token) {
+            handleToken(token as string);
+        }
+    }, [token]);
 
     const { mutate: resetPassword, isPending: resetPasswordIsPending } =
         useMutation({
-            mutationFn: async (data: { email: string; password: string }) => {
+            mutationFn: async (data: { id: string; password: string }) => {
                 return request
-                    .post('/auth/change-password', data)
+                    .post('/auth/reset-password', data)
                     .then((res) => res.data);
             },
             onSuccess: (res) => {
@@ -40,11 +61,9 @@ const ResetPasswordForm: React.FC = () => {
         password: string;
         confirmPassword: string;
     }) => {
-        const emailString = Array.isArray(email) ? email[0] : email;
-
-        if (emailString) {
+        if (userId) {
             setLoading(true);
-            resetPassword({ email: emailString, password: values.password });
+            resetPassword({ id: userId, password: values.password });
             setLoading(false);
         }
     };
@@ -55,72 +74,78 @@ const ResetPasswordForm: React.FC = () => {
 
     return (
         <div className="flex h-screen w-full items-center justify-center bg-gray-100">
-            <div className="max-w-lg rounded-lg bg-white p-8 text-center shadow-md">
-                <h2 className="mb-8 text-3xl font-bold">Reset Password</h2>
-                <Form
-                    className="no-scrollbar min-w-[400px] overflow-auto"
-                    disabled={loading || resetPasswordIsPending}
-                    form={form}
-                    layout="vertical"
-                    name="reset_password"
-                    onFinish={onFinish}
-                >
-                    <Form.Item
-                        label="New Password"
-                        name="password"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input your new password!',
-                            },
-                        ]}
+            {isTokenValid ? (
+                <div className="max-w-lg rounded-lg bg-white p-8 shadow-md">
+                    <h2 className="mb-8 text-center text-3xl font-bold">
+                        Đặt lại mật khẩu
+                    </h2>
+                    <Form
+                        className="no-scrollbar min-w-[400px] overflow-auto"
+                        disabled={loading || resetPasswordIsPending}
+                        form={form}
+                        layout="vertical"
+                        name="reset_password"
+                        onFinish={onFinish}
                     >
-                        <Input.Password size="large" />
-                    </Form.Item>
-                    <Form.Item
-                        dependencies={['password']}
-                        hasFeedback
-                        label="Confirm Password"
-                        name="confirmPassword"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please confirm your password!',
-                            },
-                            ({ getFieldValue }) => ({
-                                validator(_, value) {
-                                    if (
-                                        !value ||
-                                        getFieldValue('password') === value
-                                    ) {
-                                        return Promise.resolve();
-                                    }
-                                    return Promise.reject(
-                                        new Error(
-                                            'The two passwords that you entered do not match!'
-                                        )
-                                    );
+                        <Form.Item
+                            label="Mật khẩu mới"
+                            name="password"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Hãy nhập mật khẩu mới!',
                                 },
-                            }),
-                        ]}
-                    >
-                        <Input.Password size="large" />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button label="Reset password" onClick={onSubmit} />
-                    </Form.Item>
-                </Form>
-                {/* <div className="flex w-full justify-center">
-                    <div className="w-1/2">
-                        <Button
-                            label="Back to home"
-                            onClick={() => {
-                                router.push('/');
-                            }}
-                        />
-                    </div>
-                </div> */}
-            </div>
+                                {
+                                    min: 6,
+                                    message:
+                                        'Mật khẩu có độ dài tối thiểu 6 kí tự',
+                                },
+                            ]}
+                        >
+                            <Input.Password size="large" />
+                        </Form.Item>
+                        <Form.Item
+                            dependencies={['password']}
+                            hasFeedback
+                            label="Xác nhận mật khẩu"
+                            name="confirmPassword"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Hãy nhập mật khẩu xác nhận!',
+                                },
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        if (
+                                            !value ||
+                                            getFieldValue('password') === value
+                                        ) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject(
+                                            new Error(
+                                                'Mật khẩu không trùng khớp!'
+                                            )
+                                        );
+                                    },
+                                }),
+                            ]}
+                        >
+                            <Input.Password size="large" />
+                        </Form.Item>
+                        <Form.Item>
+                            <Button
+                                label="Đặt lại mật khẩu"
+                                onClick={onSubmit}
+                            />
+                        </Form.Item>
+                    </Form>
+                </div>
+            ) : (
+                <div className="mb-8 text-lg text-neutral-500">
+                    Xác nhận đặt lại mật khẩu không hợp lệ. Vui lòng thử lại!
+                </div>
+            )}
         </div>
     );
 };

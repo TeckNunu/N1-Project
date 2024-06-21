@@ -4,6 +4,7 @@ import { Button, Modal, Tooltip } from 'antd';
 import React, { useState } from 'react';
 import * as request from 'common/utils/http-request';
 import { toast } from 'react-toastify';
+import { useCartQuery } from '~/hooks/useCartQuery';
 
 type Props = {
     cartId: string;
@@ -18,7 +19,7 @@ const DeleteCartProductFormModal: React.FC<Props> = ({
     reload,
 }) => {
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-
+    const { reload: reloadCart } = useCartQuery();
     const { mutate, isPending } = useMutation({
         mutationFn: () =>
             request.del(`cart/delete/${cartId}`).then((res) => res.data),
@@ -27,6 +28,7 @@ const DeleteCartProductFormModal: React.FC<Props> = ({
             setTimeout(() => {
                 setIsOpenModal(false);
                 reload();
+                reloadCart();
             }, 500);
         },
         onError: (error) => {

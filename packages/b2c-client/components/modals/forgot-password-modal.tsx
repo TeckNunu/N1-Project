@@ -48,13 +48,13 @@ const ForgotPasswordModal: React.FC = () => {
             <div className="text-center">
                 {/* <div className="text-2xl font-bold">Login to your account!</div> */}
                 <div className="mt-2 font-light text-neutral-500">
-                    Enter the email you used to register your account and we
-                    will send you an email.
+                    Nhập email của bạn và chúng tôi sẽ gửi cho bạn email xác
+                    nhận thay đổi mật khẩu.
                 </div>
             </div>
             <Form
                 className="no-scrollbar overflow-auto"
-                disabled={loading}
+                disabled={loading || verifyEmailIsPending}
                 form={form}
                 layout="vertical"
                 onFinish={onFinish}
@@ -94,17 +94,17 @@ const ForgotPasswordModal: React.FC = () => {
     return (
         <>
             <Button onClick={showModal} type="link">
-                Forgot password?
+                Quên mật khẩu?
             </Button>
             <Modal
-                actionLabel="Send email"
+                actionLabel="Gửi thư xác nhận"
                 body={bodyContent}
                 disabled={loading || verifyEmailIsPending}
                 footer={footerContent}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={onSubmit}
-                title="Forgot password?"
+                title="Quên mật khẩu?"
             />
         </>
     );

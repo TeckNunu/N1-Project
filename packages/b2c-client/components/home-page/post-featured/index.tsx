@@ -8,6 +8,8 @@ import { Navigation } from 'swiper/modules';
 import type { Swiper as TypeSwiper } from 'swiper';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { cn } from 'common/utils';
+import { Button } from 'antd';
+import Link from 'next/link';
 import PostFeaturedItem from './post-featured-item';
 
 const PostFeatured = () => {
@@ -31,8 +33,13 @@ const PostFeatured = () => {
     return (
         <div>
             <div className="space-y-10">
-                <div className="text-2xl font-bold uppercase">
-                    Bài viết nổi bật
+                <div className="flex justify-between">
+                    <p className="text-2xl font-bold uppercase">
+                        Bài viết nổi bật
+                    </p>
+                    <Link href="/blog">
+                        <Button>Tất cả bài viết</Button>
+                    </Link>
                 </div>
                 <div className="relative">
                     <Swiper

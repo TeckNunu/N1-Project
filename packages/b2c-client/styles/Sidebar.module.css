@@ -12,7 +12,6 @@
 
 .searchSection {
     margin-bottom: 16px;
-    max-width: 200px;
 }
 
 .menuSection,
@@ -32,8 +31,8 @@
 }
 
 .selectedItem {
-    color: #f5222d !important;
     font-weight: bold;
+    @apply !text-primary;
 }
 
 .filterTitle {
@@ -100,13 +99,13 @@
     width: 100%;
     text-align: center;
     color: #fff;
-    background-color: #f5222d;
     font-weight: bold;
     margin-top: 10px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.5s;
+    @apply bg-primary;
 }
 
 .resetButton:hover {

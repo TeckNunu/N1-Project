@@ -260,7 +260,7 @@ model OrderDetail {
 
   thumbnail String @db.Text
   brand     String
-  size      String
+  size      Int
   category  String
 
   productId   String

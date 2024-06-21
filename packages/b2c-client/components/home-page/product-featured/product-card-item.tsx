@@ -26,9 +26,11 @@ const ProductCardItem: React.FC<Props> = ({ data }) => {
                     width={430}
                 />
             </div>
-            <div className="space-y-5 p-8">
-                <div className="text-2xl font-bold">{data?.name}</div>
-                <div className="line-clamp-3 text-lg text-slate-500">
+            <div className="flex w-full flex-col space-y-5 p-8">
+                <div className="line-clamp-2 text-2xl font-bold">
+                    {data?.name}
+                </div>
+                <div className="line-clamp-2 flex-1 text-lg text-slate-500">
                     {data?.description}
                 </div>
                 <div className="text-primary space-x-4 text-end text-xl">

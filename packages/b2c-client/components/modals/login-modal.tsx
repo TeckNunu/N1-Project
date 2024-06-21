@@ -91,9 +91,11 @@ const LoginModal = () => {
     const bodyContent = (
         <div className="flex flex-col gap-4">
             <div className="text-center">
-                <div className="text-2xl font-bold">Login to your account!</div>
+                <div className="text-2xl font-bold">
+                    Đăng nhập với tài khoản của bạn!
+                </div>
                 <div className="mt-2 font-light text-neutral-500">
-                    Welcome back
+                    Chào mừng quay trở lại
                 </div>
             </div>
             <Form
@@ -169,13 +171,13 @@ const LoginModal = () => {
                     <div>
                         <ForgotPasswordModal />
                     </div>
-                    <div>First time shopping with us?</div>
+                    <div>Lần đầu bạn mua hàng với chúng tôi?</div>
                     <div
                         className="cursor-pointer text-neutral-800 hover:underline"
                         onClick={toggle}
                         role="presentation"
                     >
-                        Create an account
+                        <Button type="link">Tạo tài khoản</Button>
                     </div>
                 </div>
             </div>
@@ -184,14 +186,14 @@ const LoginModal = () => {
 
     return (
         <Modal
-            actionLabel="Login"
+            actionLabel="Đăng nhập"
             body={bodyContent}
             disabled={loading || loginUserIsPending}
             footer={footerContent}
             isOpen={isOpen}
             onClose={onClose}
             onSubmit={onSubmit}
-            title="Login"
+            title="Đăng nhâp"
         />
     );
 };

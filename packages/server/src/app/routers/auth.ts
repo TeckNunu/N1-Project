@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import {
-    changePassword,
     checkVerify,
     loginClient,
     refreshToken,
     register,
+    resetPassword,
     senMailResetPassword,
     verifyEmail,
 } from '../controllers/auth';
@@ -25,5 +25,5 @@ export default (router: Router) => {
     router.post('/auth/user/login', loginClient);
     router.post('/auth/refreshToken', refreshToken);
     router.post('/auth/reset-password/:email', senMailResetPassword);
-    router.post('/auth/change-password', changePassword);
+    router.post('/auth/reset-password', resetPassword);
 };

@@ -15,7 +15,7 @@ export const DefaultLayout: React.FC<Props> = ({ children }) => {
                 <MainSider />
             </div>
             <div>{children}</div>
-            <div>
+            <div className="mt-10">
                 <Footer />
             </div>
         </div>

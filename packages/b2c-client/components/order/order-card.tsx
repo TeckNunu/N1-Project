@@ -64,15 +64,15 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, reload }) => {
                                         height={80}
                                         preview={false}
                                         src={getImageUrl(
-                                            orderDetail[0].thumbnail
-                                                ? orderDetail[0].thumbnail
+                                            orderDetail[0]?.thumbnail
+                                                ? orderDetail[0]?.thumbnail
                                                 : ''
                                         )}
                                     />
                                     <div className="flex h-full w-full justify-between">
                                         <div className="flex-col gap-8">
                                             <p className="text-xl">
-                                                {orderDetail[0].productName}
+                                                {orderDetail[0]?.productName}
                                             </p>
                                             <p className="text-base text-gray-500">
                                                 Phân loại hàng:{' '}
@@ -122,7 +122,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, reload }) => {
                                     order.count !== null &&
                                     order.count > 0 && (
                                         <div className="mt-2 text-base">
-                                            {orderDetail[0].productName} và{' '}
+                                            {orderDetail[0]?.productName} và{' '}
                                             {order.count} sản phẩm khác
                                         </div>
                                     )}
@@ -141,7 +141,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, reload }) => {
                                             <ReviewModal
                                                 category={
                                                     order.orderDetail[0]
-                                                        .category ?? ''
+                                                        ?.category ?? ''
                                                 }
                                                 productId={
                                                     order?.orderDetail[0]
@@ -149,15 +149,15 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, reload }) => {
                                                 }
                                                 productName={
                                                     order.orderDetail[0]
-                                                        .productName ?? ''
+                                                        ?.productName ?? ''
                                                 }
                                                 size={
-                                                    order.orderDetail[0].size ??
-                                                    ''
+                                                    order.orderDetail[0]
+                                                        ?.size ?? ''
                                                 }
                                                 thumnail={
                                                     order.orderDetail[0]
-                                                        .thumbnail ?? ''
+                                                        ?.thumbnail ?? ''
                                                 }
                                             />
                                         ) : (
@@ -179,10 +179,10 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, reload }) => {
                                             setFeedbackModalVisible(false)
                                         }
                                         productId={
-                                            orderDetail[0].productId ?? ''
+                                            orderDetail[0]?.productId ?? ''
                                         }
                                         productName={
-                                            orderDetail[0].productName ?? ''
+                                            orderDetail[0]?.productName ?? ''
                                         }
                                         visible={isFeedbackModalVisible}
                                     />
@@ -190,12 +190,15 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, reload }) => {
                                     {order.status === 'DELIVERED' && (
                                         <Button
                                             onClick={() => {
-                                                const productIdList =
-                                                    order.orderDetail?.map(
-                                                        (e) => e.productId
-                                                    );
+                                                const queryString =
+                                                    order.orderDetail
+                                                        ?.map(
+                                                            (e) =>
+                                                                `${e.productId}:${e.quantity}`
+                                                        )
+                                                        .join(',');
                                                 push(
-                                                    `/my-page/cart-details?itemKeys=${productIdList}`
+                                                    `/my-page/cart-details?itemKeys=${queryString}`
                                                 );
                                             }}
                                             size="large"

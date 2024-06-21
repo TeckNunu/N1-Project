@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-type CartLocalItem = {
+export type CartLocalItem = {
     productId: string;
     quantity: number;
 };
@@ -51,13 +51,21 @@ const useCartStore = () => {
         }
     };
 
-    const updateProductQuantity = (product: CartLocalItem) => {
+    const updateProductQuantity = (
+        product: CartLocalItem,
+        quantity: number
+    ) => {
         const index = data.findIndex(
             (item) => item.productId === product.productId
         );
         if (index !== -1) {
             const newData = [...data];
             newData[index].quantity = product.quantity;
+            newData[index].quantity = Math.max(newData[index].quantity, 1);
+            newData[index].quantity = Math.min(
+                newData[index].quantity,
+                quantity ?? 0
+            );
             setData(newData);
         } else {
             toast.error('Sản phẩm không tồn tại trong giỏ hàng!');

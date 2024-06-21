@@ -111,6 +111,18 @@ const OrderDetail = () => {
                                 {orderDetail?.status === 'PENDING' && (
                                     <>
                                         <Button
+                                            onClick={() => {
+                                                const queryString =
+                                                    orderDetail.orderDetail
+                                                        ?.map(
+                                                            (e) =>
+                                                                `${e.productId}:${e.quantity}`
+                                                        )
+                                                        .join(',');
+                                                push(
+                                                    `/my-page/cart-details?itemKeys=${queryString}&orderId=${orderDetail.id}`
+                                                );
+                                            }}
                                             size="large"
                                             style={{
                                                 width: '200px',

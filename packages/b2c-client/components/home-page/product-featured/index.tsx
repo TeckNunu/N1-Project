@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import type { ProductFeatured } from 'common/types/product';
 import type { QueryResponseType } from 'common/types';
 
+import Link from 'next/link';
+import { Button } from 'antd';
 import ProductCardItem from './product-card-item';
 
 const ListProductFeatured = () => {
@@ -15,8 +17,13 @@ const ListProductFeatured = () => {
     return (
         <div>
             <div className="space-y-10">
-                <div className="text-2xl font-bold uppercase">
-                    Sản phẩm nổi bật
+                <div className="flex justify-between">
+                    <div className="text-2xl font-bold uppercase">
+                        Sản phẩm nổi bật
+                    </div>
+                    <Link href="/product">
+                        <Button>Tất cả sản phẩm</Button>
+                    </Link>
                 </div>
                 <div className="grid grid-cols-3 gap-8">
                     {data?.data?.map((item) => (
@@ -27,6 +34,11 @@ const ListProductFeatured = () => {
                             <ProductCardItem data={item} />
                         </div>
                     ))}
+                </div>
+                <div className="flex justify-center">
+                    <Link href="/product">
+                        <Button size="large">Tất cả sản phẩm</Button>
+                    </Link>
                 </div>
             </div>
         </div>

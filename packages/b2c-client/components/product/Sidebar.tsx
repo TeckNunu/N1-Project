@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Checkbox, Input, Layout, Menu } from 'antd';
+import { useRouter } from 'next/router';
 import LatestProductCard from './LatestProductCard';
 import styles from '../../styles/Sidebar.module.css';
 
@@ -19,10 +20,11 @@ type SidebarProps = {
         id: string;
         name: string;
         discount_price: number;
+        original_price: number;
         thumbnail: string;
     }[];
     setCategory: (category: string) => void;
-    setBrand: (brand: string) => void;
+    setBrand: (brand: string[]) => void;
     handleResetFilters: () => void;
     handleSearch: (
         page: number,
@@ -31,12 +33,12 @@ type SidebarProps = {
         category?: string,
         searchTerm?: string,
         pageSize?: number,
-        brand?: string
+        brand?: string[]
     ) => void;
     currentSort?: string;
     currentSortOrder?: string;
     currentCategory?: string;
-    currentBrand?: string;
+    currentBrand?: string[];
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -57,35 +59,57 @@ const Sidebar: React.FC<SidebarProps> = ({
     const [selectedCategory, setSelectedCategory] = useState<
         string | undefined
     >(currentCategory);
-    const [selectedBrand, setSelectedBrand] = useState<string | undefined>(
-        currentBrand
+    const [selectedBrands, setSelectedBrands] = useState<string[]>(
+        currentBrand || []
     );
+
+    const router = useRouter();
 
     useEffect(() => {
         setSelectedCategory(currentCategory);
     }, [currentCategory]);
 
     useEffect(() => {
-        setSelectedBrand(currentBrand);
+        setSelectedBrands(currentBrand || []);
     }, [currentBrand]);
 
     const handleCategoryChange = (category: string) => {
-        setCategory(category);
-        setSelectedCategory(category);
-        handleSearch(
-            1,
-            currentSort,
-            currentSortOrder,
-            category,
-            undefined,
-            undefined,
-            selectedBrand
-        );
+        if (selectedCategory === category) {
+            setCategory('');
+            setSelectedCategory('');
+            handleSearch(
+                1,
+                currentSort,
+                currentSortOrder,
+                '',
+                undefined,
+                undefined,
+                selectedBrands
+            );
+        } else {
+            setCategory(category);
+            setSelectedCategory(category);
+            handleSearch(
+                1,
+                currentSort,
+                currentSortOrder,
+                category,
+                undefined,
+                undefined,
+                selectedBrands
+            );
+        }
     };
 
     const handleBrandChange = (brand: string) => {
-        setBrand(brand);
-        setSelectedBrand(brand);
+        let updatedSelectedBrands;
+        if (selectedBrands.includes(brand)) {
+            updatedSelectedBrands = selectedBrands.filter((b) => b !== brand);
+        } else {
+            updatedSelectedBrands = [...selectedBrands, brand];
+        }
+        setBrand(updatedSelectedBrands);
+        setSelectedBrands(updatedSelectedBrands);
         handleSearch(
             1,
             currentSort,
@@ -93,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             selectedCategory,
             undefined,
             undefined,
-            brand
+            updatedSelectedBrands
         );
     };
 
@@ -105,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             selectedCategory,
             value,
             undefined,
-            selectedBrand
+            selectedBrands
         );
     };
 
@@ -114,13 +138,17 @@ const Sidebar: React.FC<SidebarProps> = ({
         : categories.slice(0, 3);
     const visibleBrands = expandedBrands ? brands : brands.slice(0, 3);
 
+    const handleContactClick = () => {
+        router.push('/contact');
+    };
+
     return (
-        <Sider className={styles.sidebar} width={240}>
+        <Sider className={styles.sidebar} width={300}>
             <div className={styles.searchSection}>
                 <Search
                     enterButton
                     onSearch={onSearch}
-                    placeholder="Tìm kiếm..."
+                    placeholder="Nhập tên sản phẩm để tìm kiếm..."
                 />
             </div>
             <div className={styles.menuSection}>
@@ -165,7 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <div className={styles.checkboxGroup}>
                     {visibleBrands.map((brand) => (
                         <Checkbox
-                            checked={selectedBrand === brand.id}
+                            checked={selectedBrands.includes(brand.id)}
                             className={styles.checkbox}
                             key={brand.id}
                             onChange={() => handleBrandChange(brand.id)}
@@ -205,8 +233,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {latestProducts.map((product) => (
                     <LatestProductCard
                         discount_price={product.discount_price}
+                        id={product.id}
                         key={product.id}
                         name={product.name}
+                        original_price={product.original_price}
                         thumbnail={product.thumbnail}
                     />
                 ))}
@@ -216,9 +246,20 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <span className={styles.menuTitleText}>Liên hệ</span>
                 </div>
                 <ul className={styles.contactList}>
-                    <li>Email: contact@example.com</li>
-                    <li>Phone: +123 456 789</li>
-                    <li>Address: 123 Main Street</li>
+                    <li>Email: perfumeshop1830@gmail.com</li>
+                    <li>Điện thoại: (123) 456-7890</li>
+                    <li>
+                        Địa chỉ: 123 Đường Nước Hoa, Thành phố Hương, PC 12345
+                    </li>
+                    <li>
+                        <button
+                            className={styles.contactDetailButton}
+                            onClick={handleContactClick}
+                            type="button"
+                        >
+                            Thông tin chi tiết
+                        </button>
+                    </li>
                 </ul>
             </div>
         </Sider>
@@ -229,7 +270,7 @@ Sidebar.defaultProps = {
     currentSort: '',
     currentSortOrder: '',
     currentCategory: '',
-    currentBrand: '',
+    currentBrand: [],
 };
 
 export default Sidebar;
