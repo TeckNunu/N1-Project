@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Layout, Spin } from 'antd';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
 import { get } from 'common/utils/http-request';
 import Sidebar from '../../components/blog/Sidebar';
 import HeaderBar from '../../components/blog/HeaderBar';
@@ -27,16 +26,6 @@ const ListBlogPage: NextPage = () => {
     const [blogs, setBlogs] = useState([]);
     const [totalBlogs, setTotalBlogs] = useState(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const { data: categories, isLoading: categoryLoading } = useQuery({
-        queryKey: ['category'],
-        queryFn: () => get('category').then((res) => res.data.data),
-    });
-
-    const { data: latestPosts, isLoading: latestPostsLoading } = useQuery({
-        queryKey: ['latestPosts'],
-        queryFn: () => get('post-latest').then((res) => res.data.data),
-    });
 
     const fetchBlogs = async (params: SearchParams) => {
         setIsLoading(true);
@@ -120,14 +109,12 @@ const ListBlogPage: NextPage = () => {
     };
 
     return (
-        <Spin spinning={categoryLoading || latestPostsLoading || isLoading}>
+        <Spin spinning={isLoading}>
             <Layout className={styles.container}>
                 <Sidebar
-                    categories={categories}
                     currentCategory={routerQuery.category as string}
                     handleResetFilters={handleResetFilters}
                     handleSearch={handleSearch}
-                    latestBlogs={latestPosts}
                     setCategory={(cat) => {
                         handleSearch(
                             1,

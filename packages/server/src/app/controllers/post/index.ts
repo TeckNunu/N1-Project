@@ -207,3 +207,57 @@ export const searchPosts = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Internal server error!' });
     }
 };
+
+export const getPublicPostById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const post = await db.post.findUnique({
+            where: {
+                id,
+            },
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                briefInfo: true,
+                thumbnail: true,
+                isShow: true,
+                createdAt: true,
+                updatedAt: true,
+                user: {
+                    select: {
+                        name: true,
+                    },
+                },
+                category: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
+        });
+
+        if (!post) {
+            return res.status(404).json({
+                isOk: false,
+                message: 'Post not found!',
+            });
+        }
+
+        if (!post.isShow) {
+            return res.status(403).json({
+                isOk: false,
+                message: 'Post is not publicly available!',
+            });
+        }
+
+        return res.status(200).json({
+            isOk: true,
+            data: post,
+            message: 'Get post successfully!',
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error!' });
+    }
+};

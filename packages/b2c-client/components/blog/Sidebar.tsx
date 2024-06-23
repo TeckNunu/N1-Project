@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Layout, Menu } from 'antd';
+import { Button, Input, Layout, Menu, Spin } from 'antd';
 import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
+import { get } from 'common/utils/http-request';
 import LatestBlogCard from './LatestBlogCard';
 import styles from '../../styles/Sidebar.module.css';
 
 const { Sider } = Layout;
 const { Search } = Input;
 
+type Category = {
+    id: string;
+    name: string;
+};
+
+type LatestPost = {
+    id: string;
+    title: string;
+    thumbnail: string;
+};
+
 type SidebarProps = {
-    categories: {
-        id: string;
-        name: string;
-    }[];
-    latestBlogs: {
-        id: string;
-        title: string;
-        thumbnail: string;
-    }[];
-    setCategory: (category: string) => void;
-    handleResetFilters: () => void;
-    handleSearch: (
+    setCategory?: (category: string) => void;
+    handleResetFilters?: () => void;
+    handleSearch?: (
         page: number,
         sort?: string,
         sortOrder?: string,
@@ -28,21 +32,35 @@ type SidebarProps = {
         pageSize?: number
     ) => void;
     currentCategory?: string;
+    isDetailPage?: boolean;
 };
 
 const Sidebar: React.FC<SidebarProps> = ({
-    categories = [],
-    latestBlogs = [],
     setCategory,
     handleResetFilters,
     handleSearch,
     currentCategory,
+    isDetailPage = false,
 }) => {
     const [expandedCategories, setExpandedCategories] = useState(false);
     const [showAllBlogs, setShowAllBlogs] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<
         string | undefined
     >(currentCategory);
+
+    const { data: categories = [], isLoading: categoryLoading } = useQuery<
+        Category[]
+    >({
+        queryKey: ['category'],
+        queryFn: () => get('category').then((res) => res.data.data),
+    });
+
+    const { data: latestPosts = [], isLoading: latestPostsLoading } = useQuery<
+        LatestPost[]
+    >({
+        queryKey: ['latestPosts'],
+        queryFn: () => get('post-latest').then((res) => res.data.data),
+    });
 
     const router = useRouter();
 
@@ -52,23 +70,42 @@ const Sidebar: React.FC<SidebarProps> = ({
 
     const handleCategoryChange = (category: string) => {
         if (selectedCategory === category) {
-            setCategory('');
+            if (setCategory) {
+                setCategory('');
+            }
             setSelectedCategory('');
-            handleSearch(1, undefined, undefined, '');
+            if (handleSearch) {
+                handleSearch(1, undefined, undefined, '');
+            }
         } else {
-            setCategory(category);
+            if (setCategory) {
+                setCategory(category);
+            }
             setSelectedCategory(category);
-            handleSearch(1, undefined, undefined, category);
+            if (isDetailPage) {
+                router.push({
+                    pathname: '/blog',
+                    query: { category },
+                });
+            } else if (handleSearch) {
+                handleSearch(1, undefined, undefined, category);
+            }
         }
     };
 
     const onSearch = (value: string) => {
-        handleSearch(1, undefined, undefined, selectedCategory, value);
+        if (handleSearch) {
+            handleSearch(1, undefined, undefined, selectedCategory, value);
+        }
     };
 
     const visibleCategories = expandedCategories
         ? categories
         : categories.slice(0, 3);
+
+    if (categoryLoading || latestPostsLoading) {
+        return <Spin spinning />;
+    }
 
     return (
         <Sider className={styles.sidebar} width={300}>
@@ -114,20 +151,24 @@ const Sidebar: React.FC<SidebarProps> = ({
                     )}
                 </Menu>
             </div>
-            <Button
-                className={styles.resetButton}
-                onClick={handleResetFilters}
-                type="link"
-            >
-                Xóa bộ lọc
-            </Button>
-            <div className={styles.divider} />
+            {!isDetailPage && (
+                <>
+                    <Button
+                        className={styles.resetButton}
+                        onClick={handleResetFilters}
+                        type="link"
+                    >
+                        Xóa bộ lọc
+                    </Button>
+                    <div className={styles.divider} />
+                </>
+            )}
             <div className={styles.latestBlogsSection}>
                 <div className={styles.menuTitle}>
                     <span className={styles.menuTitleText}>Blog mới nhất</span>
                 </div>
-                {latestBlogs
-                    .slice(0, showAllBlogs ? latestBlogs.length : 4)
+                {latestPosts
+                    .slice(0, showAllBlogs ? latestPosts.length : 4)
                     .map((blog) => (
                         <LatestBlogCard key={blog.id} {...blog} />
                     ))}
@@ -163,7 +204,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 };
 
 Sidebar.defaultProps = {
+    setCategory: () => {},
+    handleResetFilters: () => {},
+    handleSearch: () => {},
     currentCategory: '',
+    isDetailPage: false,
 };
 
 export default Sidebar;
