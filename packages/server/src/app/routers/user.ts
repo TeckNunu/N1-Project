@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { getProfileUser, updateProfileUser } from '../controllers/user/index';
 import {
     createUser,
     deleteUser,
@@ -7,6 +8,7 @@ import {
     getUser,
     getUserById,
 } from '../controllers/admin/user';
+
 import { isAuthenticated } from '../../middlewares';
 
 export default (router: Router) => {
@@ -16,4 +18,7 @@ export default (router: Router) => {
     router.get('/admin/user-detail/:id', getUserById);
     router.put('/admin/edit-user/:id', editUser);
     router.put('/admin/delete-user/:id', deleteUser);
+
+    router.get('/user-profile', isAuthenticated, getProfileUser);
+    router.put('/user-profile/update', isAuthenticated, updateProfileUser);
 };
