@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-    Button,
-    DatePicker,
-    Form,
-    Input,
-    message,
-    Spin,
-    Typography,
-} from 'antd';
+import { Button, Form, Input, message, Spin, Typography } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { get } from 'common/utils/http-request';
 import { getImageUrl } from 'common/utils/getImageUrl';
@@ -40,7 +32,9 @@ const ProfileForm = () => {
                 email: userData.email,
                 phone: userData.phone,
                 gender: mapGender(userData.gender),
-                dob: userData.dob ? moment(userData.dob) : null,
+                dob: userData.dob
+                    ? moment(userData.dob).format('DD/MM/YYYY')
+                    : '',
                 address: userData.address,
             });
 
@@ -86,7 +80,7 @@ const ProfileForm = () => {
                         email: '',
                         phone: '',
                         gender: 'Khác',
-                        dob: null,
+                        dob: '',
                         address: '',
                     }}
                     layout="horizontal"
@@ -100,21 +94,21 @@ const ProfileForm = () => {
                                 label="Name"
                                 name="name"
                             >
-                                <Input disabled={loading} />
+                                <Input readOnly />
                             </Form.Item>
                             <Form.Item
                                 {...formItemLayout}
                                 label="Email"
                                 name="email"
                             >
-                                <Input disabled={loading} />
+                                <Input readOnly />
                             </Form.Item>
                             <Form.Item
                                 {...formItemLayout}
                                 label="Số điện thoại"
                                 name="phone"
                             >
-                                <Input disabled={loading} />
+                                <Input readOnly />
                             </Form.Item>
                             <Form.Item
                                 {...formItemLayout}
@@ -122,7 +116,7 @@ const ProfileForm = () => {
                                 name="gender"
                             >
                                 <Input
-                                    disabled={loading}
+                                    readOnly
                                     value={form.getFieldValue('gender')}
                                 />
                             </Form.Item>
@@ -131,18 +125,14 @@ const ProfileForm = () => {
                                 label="Ngày sinh"
                                 name="dob"
                             >
-                                <DatePicker
-                                    disabled={loading}
-                                    format="DD/MM/YYYY"
-                                    style={{ width: '100%' }}
-                                />
+                                <Input readOnly />
                             </Form.Item>
                             <Form.Item
                                 {...formItemLayout}
                                 label="Địa chỉ"
                                 name="address"
                             >
-                                <Input disabled={loading} />
+                                <Input readOnly />
                             </Form.Item>
                         </div>
                         <div className={styles.verticalDivider} />
@@ -161,7 +151,6 @@ const ProfileForm = () => {
                     </div>
                     <Form.Item>
                         <Button
-                            disabled={loading}
                             htmlType="submit"
                             onClick={() => setIsModalVisible(true)}
                             type="primary"
