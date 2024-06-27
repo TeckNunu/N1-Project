@@ -11,8 +11,9 @@ import {
 } from 'antd';
 import { UploadOutlined, UserOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import { UploadFile } from 'antd/es/upload';
-import { dropListFiles } from 'common/utils/dropListFiles';
+import { RcFile, UploadFile } from 'antd/es/upload';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import request from 'common/utils/http-request';
 import styles from '~/styles/my-page/EditProfilePopup.module.css';
 
@@ -42,6 +43,34 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [uploadedImageName, setUploadedImageName] = useState(avatarUrl);
 
+    const { mutateAsync: uploadFileTrigger } = useMutation({
+        mutationFn: (files: RcFile[]) => {
+            const formData = new FormData();
+            files.forEach((file) => formData.append('files', file));
+            return request.post('upload', formData).then((res) => res.data);
+        },
+        onError: () => {
+            toast.error('Upload file failed!');
+        },
+    });
+
+    const { mutateAsync: updateUserProfile } = useMutation({
+        mutationFn: (data: Partial<UserProfile>) => {
+            return request.put('/user-profile/update', data);
+        },
+        onSuccess: () => {
+            message.success('Profile updated successfully');
+            form.resetFields();
+            setFileList([]);
+            setUploadedImageName('');
+            onClose();
+        },
+        onError: (err) => {
+            const error = err as Error;
+            message.error(error.message || 'Failed to update profile');
+        },
+    });
+
     useEffect(() => {
         if (initialValues) {
             form.setFieldsValue({
@@ -55,59 +84,46 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            const { fileNotUpload } = dropListFiles(fileList);
-
             let newUploadedImageName = uploadedImageName;
 
-            if (fileNotUpload.length > 0) {
-                const formData = new FormData();
-                fileNotUpload.forEach((file) => formData.append('files', file));
+            if (fileList.length > 0) {
+                const fileListToUpload = fileList.map(
+                    (file) => file.originFileObj as RcFile
+                );
 
-                const uploadResponse = await request.post('/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+                if (fileListToUpload.length > 0) {
+                    const uploadResponse =
+                        await uploadFileTrigger(fileListToUpload);
+                    const { imageUrls } = uploadResponse;
 
-                const [imageUrl] = uploadResponse.data.imageUrls || [];
-
-                if (imageUrl) {
-                    // Extract the image name from the URL
-                    const imageName = imageUrl.split('/').pop();
-                    if (imageName) {
-                        newUploadedImageName = imageName;
+                    if (imageUrls && imageUrls.length > 0) {
+                        [newUploadedImageName] = imageUrls;
                         setUploadedImageName(newUploadedImageName);
                     } else {
                         throw new Error(
-                            'Failed to extract image name from URL'
+                            'Image upload failed, no image URLs returned'
                         );
                     }
-                } else {
-                    throw new Error(
-                        'Image upload failed, no image URLs returned'
-                    );
                 }
-            } else {
-                const imageName = uploadedImageName.split('/').pop();
-                newUploadedImageName = imageName || uploadedImageName;
             }
+
+            // Loại bỏ phần URL khỏi tên ảnh, chỉ lưu tên ảnh
+            const imageName = newUploadedImageName.split('/').pop();
 
             const updateData = {
                 ...values,
                 gender: values.gender === 'Nam' ? 'MALE' : 'FEMALE',
-                image: newUploadedImageName,
+                image: imageName || '',
                 dob: values.dob ? values.dob.format('YYYY-MM-DD') : null,
             };
 
-            await request.put('/user-profile/update', updateData);
+            // Loại bỏ dữ liệu ảnh từ values trước khi gửi yêu cầu PUT, ko gửi ảnh cùng Put
+            delete updateData.avatar;
 
-            message.success('Profile updated successfully');
-            form.resetFields();
-            setFileList([]);
-            setUploadedImageName('');
-            onClose();
-        } catch (error) {
-            message.error('Failed to update profile');
+            await updateUserProfile(updateData);
+        } catch (err) {
+            const error = err as Error;
+            message.error(error.message || 'Failed to update profile');
         }
     };
 
@@ -123,12 +139,11 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
             message.error('You can only upload image files!');
             return Upload.LIST_IGNORE;
         }
-        const isLt2M = file.size && file.size / 1024 / 1024 < 3;
-        if (!isLt2M) {
-            message.error('Image must be smaller than 2MB!');
-            return Upload.LIST_IGNORE;
-        }
-        return isImage && isLt2M;
+        return isImage;
+    };
+
+    const normFile = (e: { fileList: UploadFile[] }) => {
+        return e?.fileList;
     };
 
     return (
@@ -141,7 +156,10 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
         >
             <Form
                 form={form}
-                initialValues={initialValues}
+                initialValues={{
+                    ...initialValues,
+                    dob: initialValues.dob ? moment(initialValues.dob) : null,
+                }}
                 layout="vertical"
                 name="edit_profile"
             >
@@ -187,7 +205,11 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                         ) : (
                             <UserOutlined className={styles.profileIcon} />
                         )}
-                        <Form.Item name="avatar">
+                        <Form.Item
+                            getValueFromEvent={normFile}
+                            name="avatar"
+                            valuePropName="fileList"
+                        >
                             <Upload
                                 beforeUpload={beforeUpload}
                                 fileList={fileList}
