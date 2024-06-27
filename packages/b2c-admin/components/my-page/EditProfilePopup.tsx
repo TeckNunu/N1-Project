@@ -223,6 +223,10 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                                 {...formItemLayout}
                             >
                                 <DatePicker
+                                    disabledDate={(current) =>
+                                        current &&
+                                        current > moment().endOf('day')
+                                    }
                                     format="DD/MM/YYYY"
                                     style={{ width: '100%' }}
                                 />
