@@ -42,6 +42,8 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [uploadedImageName, setUploadedImageName] = useState(avatarUrl);
+    const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
+        useState(false);
 
     const { mutateAsync: uploadFileTrigger } = useMutation({
         mutationFn: (files: RcFile[]) => {
@@ -82,6 +84,10 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     }, [initialValues, avatarUrl, form]);
 
     const handleOk = async () => {
+        setIsConfirmationModalVisible(true);
+    };
+
+    const handleConfirmOk = async () => {
         try {
             const values = await form.validateFields();
             let newUploadedImageName = uploadedImageName;
@@ -121,6 +127,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
             delete updateData.avatar;
 
             await updateUserProfile(updateData);
+            setIsConfirmationModalVisible(false);
         } catch (err) {
             const error = err as Error;
             message.error(error.message || 'Failed to update profile');
@@ -146,86 +153,134 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
         return e?.fileList;
     };
 
+    const formItemLayout = {
+        labelCol: {
+            xs: { span: 24 },
+            sm: { span: 8 },
+        },
+        wrapperCol: {
+            xs: { span: 24 },
+            sm: { span: 16 },
+        },
+    };
+
     return (
-        <Modal
-            className={styles.editProfilePopup}
-            onCancel={onClose}
-            onOk={handleOk}
-            open={visible}
-            title="Edit Profile"
-        >
-            <Form
-                form={form}
-                initialValues={{
-                    ...initialValues,
-                    dob: initialValues.dob ? moment(initialValues.dob) : null,
-                }}
-                layout="vertical"
-                name="edit_profile"
+        <>
+            <Modal
+                className={styles.editProfilePopup}
+                onCancel={onClose}
+                onOk={handleOk}
+                open={visible}
+                title="Edit Profile"
             >
-                <div className={styles.formContent}>
-                    <div className={styles.formLeft}>
-                        <Form.Item label="Name" name="name">
-                            <Input />
-                        </Form.Item>
-                        <Form.Item label="Email" name="email">
-                            <Input disabled />
-                        </Form.Item>
-                        <Form.Item label="Số điện thoại" name="phone">
-                            <Input />
-                        </Form.Item>
-                        <Form.Item label="Giới tính" name="gender">
-                            <Radio.Group>
-                                <Radio value="Nam">Nam</Radio>
-                                <Radio value="Nữ">Nữ</Radio>
-                            </Radio.Group>
-                        </Form.Item>
-                        <Form.Item label="Ngày sinh" name="dob">
-                            <DatePicker
-                                format="DD/MM/YYYY"
-                                style={{ width: '100%' }}
-                            />
-                        </Form.Item>
-                        <Form.Item label="Địa chỉ" name="address">
-                            <Input />
-                        </Form.Item>
-                    </div>
-                    <div className={styles.verticalDivider} />
-                    <div className={styles.formRight}>
-                        {uploadedImageName ? (
-                            <img
-                                alt="Avatar"
-                                className={styles.avatarImage}
-                                src={
-                                    uploadedImageName.startsWith('http')
-                                        ? uploadedImageName
-                                        : `/images/${uploadedImageName}`
-                                }
-                            />
-                        ) : (
-                            <UserOutlined className={styles.profileIcon} />
-                        )}
-                        <Form.Item
-                            getValueFromEvent={normFile}
-                            name="avatar"
-                            valuePropName="fileList"
-                        >
-                            <Upload
-                                beforeUpload={beforeUpload}
-                                fileList={fileList}
-                                listType="picture"
-                                maxCount={1}
-                                onChange={handleChange}
+                <Form
+                    form={form}
+                    initialValues={{
+                        ...initialValues,
+                        dob: initialValues.dob
+                            ? moment(initialValues.dob)
+                            : null,
+                    }}
+                    layout="horizontal" // Set the form layout to horizontal
+                    name="edit_profile"
+                >
+                    <div className={styles.formContent}>
+                        <div className={styles.formLeft}>
+                            <Form.Item
+                                label="Name"
+                                name="name"
+                                {...formItemLayout}
                             >
-                                <Button icon={<UploadOutlined />}>
-                                    Chọn Ảnh
-                                </Button>
-                            </Upload>
-                        </Form.Item>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="Email"
+                                name="email"
+                                {...formItemLayout}
+                            >
+                                <Input disabled />
+                            </Form.Item>
+                            <Form.Item
+                                label="Số điện thoại"
+                                name="phone"
+                                {...formItemLayout}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="Giới tính"
+                                name="gender"
+                                {...formItemLayout}
+                            >
+                                <Radio.Group>
+                                    <Radio value="Nam">Nam</Radio>
+                                    <Radio value="Nữ">Nữ</Radio>
+                                </Radio.Group>
+                            </Form.Item>
+                            <Form.Item
+                                label="Ngày sinh"
+                                name="dob"
+                                {...formItemLayout}
+                            >
+                                <DatePicker
+                                    format="DD/MM/YYYY"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="Địa chỉ"
+                                name="address"
+                                {...formItemLayout}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </div>
+                        <div className={styles.verticalDivider} />
+                        <div className={styles.formRight}>
+                            {uploadedImageName ? (
+                                <img
+                                    alt="Avatar"
+                                    className={styles.avatarImage}
+                                    src={
+                                        uploadedImageName.startsWith('http')
+                                            ? uploadedImageName
+                                            : `/images/${uploadedImageName}`
+                                    }
+                                />
+                            ) : (
+                                <UserOutlined className={styles.profileIcon} />
+                            )}
+                            <Form.Item
+                                getValueFromEvent={normFile}
+                                name="avatar"
+                                valuePropName="fileList"
+                            >
+                                <Upload
+                                    beforeUpload={beforeUpload}
+                                    fileList={fileList}
+                                    listType="picture"
+                                    maxCount={1}
+                                    onChange={handleChange}
+                                >
+                                    <Button icon={<UploadOutlined />}>
+                                        Chọn Ảnh
+                                    </Button>
+                                </Upload>
+                            </Form.Item>
+                        </div>
                     </div>
-                </div>
-            </Form>
-        </Modal>
+                </Form>
+            </Modal>
+            <Modal
+                className={styles.centeredModal}
+                onCancel={() => setIsConfirmationModalVisible(false)}
+                onOk={handleConfirmOk}
+                open={isConfirmationModalVisible}
+                title="Confirm Update"
+            >
+                <p>Bạn có chắc chắn muốn cập nhật thông tin không?</p>
+            </Modal>
+        </>
     );
 };
 

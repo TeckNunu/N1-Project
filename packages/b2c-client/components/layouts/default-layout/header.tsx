@@ -28,7 +28,14 @@ const Header = () => {
     const items: MenuProps['items'] = [
         {
             key: '1',
-            label: <div>Thông tin</div>,
+            label: (
+                <div
+                    onClick={() => router.push('/my-page')}
+                    role="presentation"
+                >
+                    Thông tin
+                </div>
+            ),
         },
         {
             key: 'myOrder',

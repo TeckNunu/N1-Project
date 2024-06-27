@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu } from 'antd';
+import PropTypes from 'prop-types';
 import {
     IdcardOutlined,
     LockOutlined,
@@ -11,12 +12,18 @@ import styles from '~/styles/my-page/Sidebar.module.css';
 
 const { SubMenu } = Menu;
 
-const Sidebar = () => {
+interface SidebarProps {
+    onMenuClick: (key: string) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onMenuClick }) => {
     const [isChangePasswordVisible, setChangePasswordVisible] = useState(false);
 
     const handleMenuClick = ({ key }: { key: string }) => {
         if (key === '2') {
             setChangePasswordVisible(true);
+        } else {
+            onMenuClick(key);
         }
     };
 
@@ -57,6 +64,10 @@ const Sidebar = () => {
             />
         </div>
     );
+};
+
+Sidebar.propTypes = {
+    onMenuClick: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

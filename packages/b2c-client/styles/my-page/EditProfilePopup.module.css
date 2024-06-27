@@ -51,3 +51,8 @@
     margin-bottom: 30px;
     object-fit: cover;
 }
+
+.centeredModal {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
