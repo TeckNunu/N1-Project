@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Menu } from 'antd';
 import {
     IdcardOutlined,
@@ -6,11 +6,20 @@ import {
     ShoppingCartOutlined,
     UserOutlined,
 } from '@ant-design/icons';
+import ChangePasswordPopup from './ChangePasswordPopup';
 import styles from '~/styles/my-page/Sidebar.module.css';
 
 const { SubMenu } = Menu;
 
 const Sidebar = () => {
+    const [isChangePasswordVisible, setChangePasswordVisible] = useState(false);
+
+    const handleMenuClick = ({ key }: { key: string }) => {
+        if (key === '2') {
+            setChangePasswordVisible(true);
+        }
+    };
+
     return (
         <div className={styles.sidebarContainer}>
             <div className={styles.profileInfo}>
@@ -23,6 +32,7 @@ const Sidebar = () => {
                 defaultOpenKeys={['sub1']}
                 defaultSelectedKeys={['1']}
                 mode="inline"
+                onClick={handleMenuClick}
                 style={{ height: '100%', borderRight: 0 }}
             >
                 <SubMenu
@@ -41,6 +51,10 @@ const Sidebar = () => {
                     Đơn Mua
                 </Menu.Item>
             </Menu>
+            <ChangePasswordPopup
+                onClose={() => setChangePasswordVisible(false)}
+                visible={isChangePasswordVisible}
+            />
         </div>
     );
 };

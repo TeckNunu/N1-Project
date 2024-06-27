@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { getProfileUser, updateProfileUser } from '../controllers/user/index';
+import {
+    changePassword,
+    getProfileUser,
+    updateProfileUser,
+} from '../controllers/user/index';
 import {
     createUser,
     deleteUser,
@@ -21,4 +25,9 @@ export default (router: Router) => {
 
     router.get('/user-profile', isAuthenticated, getProfileUser);
     router.put('/user-profile/update', isAuthenticated, updateProfileUser);
+    router.put(
+        '/user-profile/change-password',
+        isAuthenticated,
+        changePassword
+    );
 };
