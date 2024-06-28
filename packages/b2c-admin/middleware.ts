@@ -66,5 +66,6 @@ export const config = {
         '/admin/:path*',
         '/marketer/:path*',
         '/auth/login',
+        '/my-page/:path*',
     ],
 };

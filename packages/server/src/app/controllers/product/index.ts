@@ -151,6 +151,9 @@ export const getLatestProducts = async (req: Request, res: Response) => {
 
     try {
         const latestProducts = await db.product.findMany({
+            where: {
+                isShow: true,
+            },
             orderBy: {
                 updatedAt: 'desc',
             },
@@ -185,6 +188,7 @@ export const getListHotSearchProduct = async (req: Request, res: Response) => {
                 name: {
                     contains: search ? String(search) : undefined,
                 },
+                isShow: true,
             },
             select: {
                 id: true,

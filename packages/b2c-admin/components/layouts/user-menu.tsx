@@ -23,7 +23,14 @@ const Header: React.FC<Props> = ({ title }) => {
     const items: MenuProps['items'] = [
         {
             key: '1',
-            label: <p>Profile</p>,
+            label: (
+                <div
+                    onClick={() => router.push('/my-page')}
+                    role="presentation"
+                >
+                    Profile
+                </div>
+            ),
         },
         {
             key: '2',

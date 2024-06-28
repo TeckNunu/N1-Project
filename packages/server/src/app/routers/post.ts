@@ -13,6 +13,8 @@ import {
     getListLatestPost,
     getListPost,
     getPostById,
+    getPublicPostById,
+    searchPosts,
 } from '../controllers/post';
 
 export default (router: Router) => {
@@ -30,4 +32,6 @@ export default (router: Router) => {
     // Public
     router.get('/post-featured', getListFeaturedPost);
     router.get('/post-latest', getListLatestPost);
+    router.get('/post-search', searchPosts);
+    router.get('/post-public/:id', getPublicPostById);
 };
