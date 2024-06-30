@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Layout, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import { get } from 'common/utils/http-request';
+import { getImageUrl } from 'common/utils/getImageUrl';
 import Sidebar from '../../components/blog/Sidebar';
 import styles from '~/styles/blog/BlogDetail.module.css';
 
@@ -67,6 +68,15 @@ const BlogDetailPage: React.FC = () => {
                             Danh mục: {blog?.category.name}
                         </span>
                     </div>
+                    {blog?.thumbnail && (
+                        <div className={styles.thumbnailContainer}>
+                            <img
+                                alt={blog.title}
+                                className={styles.thumbnail}
+                                src={getImageUrl(blog.thumbnail)}
+                            />
+                        </div>
+                    )}
                     <div
                         className={styles.postContent}
                         dangerouslySetInnerHTML={{
