@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { MenuProps } from 'antd';
 import { Dropdown } from 'antd';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import { get } from 'common/utils/http-request';
+import { getImageUrl } from 'common/utils/getImageUrl';
 
 type Props = {
     title: string;
@@ -12,6 +14,21 @@ type Props = {
 
 const Header: React.FC<Props> = ({ title }) => {
     const router = useRouter();
+    const [userImage, setUserImage] = useState<string | null>(null);
+
+    const fetchUserImage = async () => {
+        try {
+            const response = await get('/user-image');
+            const imageUrl = getImageUrl(response.data.data.image);
+            setUserImage(imageUrl);
+        } catch (error) {
+            //
+        }
+    };
+
+    useEffect(() => {
+        fetchUserImage();
+    }, []);
 
     const logOut = () => {
         Cookies.remove('cmsUser');
@@ -58,13 +75,23 @@ const Header: React.FC<Props> = ({ title }) => {
                     placement="bottomLeft"
                 >
                     <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
-                        <Image
-                            alt="avatar"
-                            className="rounded-full"
-                            height={40}
-                            src="/images/placeholder.jpg"
-                            width={40}
-                        />
+                        {userImage ? (
+                            <Image
+                                alt="avatar"
+                                className="rounded-full"
+                                height={40}
+                                src={userImage}
+                                width={40}
+                            />
+                        ) : (
+                            <Image
+                                alt="avatar"
+                                className="rounded-full"
+                                height={40}
+                                src="/images/placeholder.jpg"
+                                width={40}
+                            />
+                        )}
                         <MenuOutlined />
                     </div>
                 </Dropdown>
