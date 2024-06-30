@@ -1,6 +1,6 @@
 .profileFormContainer {
     background-color: #fff;
-   padding: 24px; 
+    padding: 24px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     width: 100%;
@@ -49,4 +49,17 @@
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 40px;
+}
+
+.uploadContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btnUpdateImg {
+    display: flex;
+    justify-content: center;
 }

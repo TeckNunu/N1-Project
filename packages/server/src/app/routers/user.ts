@@ -4,6 +4,7 @@ import {
     getProfileUser,
     getUserImage,
     updateProfileUser,
+    updateUserImage,
 } from '../controllers/user/index';
 import {
     createUser,
@@ -32,4 +33,5 @@ export default (router: Router) => {
         changePassword
     );
     router.get('/user-image', isAuthenticated, getUserImage);
+    router.put('/user-profile/update-image', isAuthenticated, updateUserImage);
 };

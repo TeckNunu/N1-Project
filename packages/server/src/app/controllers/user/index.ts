@@ -181,3 +181,37 @@ export const getUserImage = async (req: Request, res: Response) => {
             .json({ error: 'Internal Server Error', details: error.message });
     }
 };
+
+export const updateUserImage = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+
+    if (!accessToken) {
+        return res.status(401).json({ message: 'No access token provided' });
+    }
+
+    try {
+        const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+        const userId = tokenDecoded.id;
+
+        const { image } = req.body;
+
+        if (!image) {
+            return res.status(400).json({ message: 'Image is required' });
+        }
+
+        const user = await db.user.update({
+            where: { id: userId },
+            data: { image },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: user,
+            message: 'User image updated successfully!',
+        });
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ error: 'Internal Server Error', details: error.message });
+    }
+};
