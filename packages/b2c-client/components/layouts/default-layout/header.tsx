@@ -3,9 +3,11 @@ import type { MenuProps } from 'antd';
 import { Button, Dropdown } from 'antd';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
+import { get } from 'common/utils/http-request';
+import { getImageUrl } from 'common/utils/getImageUrl';
 import { useAuth } from '~/hooks/useAuth';
 import useLoginModal from '~/hooks/useLoginModal';
 import useRegisterModal from '~/hooks/useRegisterModal';
@@ -17,6 +19,25 @@ const Header = () => {
     const router = useRouter();
     const { onOpen: openLoginModal } = useLoginModal();
     const { onOpen: openRegisterModal } = useRegisterModal();
+    const [userImage, setUserImage] = useState<string | null>(null);
+
+    const fetchUserImage = async () => {
+        try {
+            const response = await get('/user-image');
+            const imageUrl = getImageUrl(response.data.data.image);
+            setUserImage(imageUrl);
+        } catch (error) {
+            //
+        }
+    };
+
+    useEffect(() => {
+        if (auth) {
+            fetchUserImage();
+        } else {
+            setUserImage(null);
+        }
+    }, [auth]);
 
     const logOut = () => {
         Cookies.remove('accessTokenClient');
@@ -88,13 +109,23 @@ const Header = () => {
                                 placement="bottomRight"
                             >
                                 <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
-                                    <Image
-                                        alt="avatar"
-                                        className="rounded-full"
-                                        height={40}
-                                        src="/images/placeholder.jpg"
-                                        width={40}
-                                    />
+                                    {userImage ? (
+                                        <Image
+                                            alt="avatar"
+                                            className="rounded-full"
+                                            height={40}
+                                            src={userImage}
+                                            width={40}
+                                        />
+                                    ) : (
+                                        <Image
+                                            alt="avatar"
+                                            className="rounded-full"
+                                            height={40}
+                                            src="/images/placeholder.jpg"
+                                            width={40}
+                                        />
+                                    )}
                                     <MenuOutlined />
                                 </div>
                             </Dropdown>

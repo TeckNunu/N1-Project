@@ -139,3 +139,45 @@ export const changePassword = async (req: Request, res: Response) => {
             .json({ error: 'Internal Server Error', details: error.message });
     }
 };
+
+export const getUserImage = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+
+    if (!accessToken) {
+        return res.status(401).json({ message: 'No access token provided' });
+    }
+
+    try {
+        const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+        const userId = tokenDecoded.id;
+
+        const user = await db.user.findUnique({
+            where: { id: userId },
+            select: {
+                image: true,
+            },
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                isOk: false,
+                message: 'User not found',
+            });
+        }
+
+        // Assuming user.image is the URL or path to the user's image
+        const userImage = user.image;
+
+        return res.status(200).json({
+            isOk: true,
+            data: {
+                image: userImage,
+            },
+            message: 'Get user image successfully!',
+        });
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ error: 'Internal Server Error', details: error.message });
+    }
+};
