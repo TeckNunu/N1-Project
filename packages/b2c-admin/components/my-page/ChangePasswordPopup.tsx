@@ -22,7 +22,7 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
     onClose,
 }) => {
     const [form] = Form.useForm();
-    const [confirmVisible, setConfirmVisible] = useState(false); // State for confirmation modal
+    const [confirmVisible, setConfirmVisible] = useState(false);
 
     const { mutateAsync: changePassword } = useMutation({
         mutationFn: (data: { oldPassword: string; newPassword: string }) => {
@@ -45,8 +45,15 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
+            const passwordRegex = /^(?=.*[!@#$%^&*])(?=.{8,})/;
+            if (!passwordRegex.test(values.newPassword)) {
+                message.error(
+                    'New password must be at least 8 characters long and contain a special character!'
+                );
+                return;
+            }
             if (values.newPassword !== values.confirmPassword) {
-                message.error('Mật khẩu mới không khớp!');
+                message.error('New passwords do not match!');
                 return;
             }
             setConfirmVisible(true);
