@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Card, Modal, Typography } from 'antd';
+import { Button, Card, Typography } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
@@ -30,8 +30,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const auth = useAuth();
     const router = useRouter();
     const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
-    const [isOutOfStockModalVisible, setOutOfStockModalVisible] =
-        useState(false);
 
     const { reload } = useCartQuery();
     const { addProduct } = useCartStore();
@@ -68,7 +66,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 addProduct(productData);
             }
         } else {
-            setOutOfStockModalVisible(true); // nếu hết hàng thì hiển thị modal
+            //
         }
     };
 
@@ -84,6 +82,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const handleCardClick = () => {
         router.push(`/product/${id}`);
     };
+
+    const handleOutStock = () => {};
 
     const imageUrl = thumbnail ? getImageUrl(thumbnail) : '/images/sp1.jpg';
     const showDiscountPrice =
@@ -125,9 +125,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     )}
                 </Typography.Paragraph>
                 <div className={styles.buttonContainer}>
-                    <Button onClick={handleBuy} type="primary">
-                        Mua
-                    </Button>
+                    {quantity > 0 ? (
+                        <Button onClick={handleBuy} type="primary">
+                            Mua
+                        </Button>
+                    ) : (
+                        <Button
+                            className={styles.outStock}
+                            disabled
+                            onClick={handleOutStock}
+                        >
+                            Hết hàng
+                        </Button>
+                    )}
+
                     <Button
                         className={styles.feedbackButton}
                         onClick={handleFeedback}
@@ -143,16 +154,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 productName={name}
                 visible={isFeedbackModalVisible}
             />
-            <Modal
-                centered
-                okText="Đóng"
-                onCancel={() => setOutOfStockModalVisible(false)}
-                onOk={() => setOutOfStockModalVisible(false)}
-                title="Thông báo"
-                visible={isOutOfStockModalVisible}
-            >
-                <p>Sản phẩm này đã hết hàng.</p>
-            </Modal>
         </>
     );
 };
