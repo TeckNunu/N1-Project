@@ -232,6 +232,7 @@ export const getPublicPostById = async (req: Request, res: Response) => {
                 },
                 category: {
                     select: {
+                        id: true,
                         name: true,
                     },
                 },
