@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Card, Typography } from 'antd';
+import { Button, Card, Modal, Typography } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
@@ -22,6 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     name,
     discount_price,
     original_price,
+    quantity,
     description,
     thumbnail,
 }) => {
@@ -29,6 +30,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const auth = useAuth();
     const router = useRouter();
     const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
+    const [isOutOfStockModalVisible, setOutOfStockModalVisible] =
+        useState(false);
 
     const { reload } = useCartQuery();
     const { addProduct } = useCartStore();
@@ -54,14 +57,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     const handleBuy = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
-        const productData = { productId: id, quantity: 1 };
+        if (quantity > 0) {
+            const productData = { productId: id, quantity: 1 };
 
-        // Check if user is authenticated
-        if (auth && (auth as { access_token: string }).access_token) {
-            addToCart.mutate(productData);
+            // Check if user is authenticated
+            if (auth && (auth as { access_token: string }).access_token) {
+                addToCart.mutate(productData);
+            } else {
+                // Add to Zustand store instead of localStorage
+                addProduct(productData);
+            }
         } else {
-            // Add to Zustand store instead of localStorage
-            addProduct(productData);
+            setOutOfStockModalVisible(true); // nếu hết hàng thì hiển thị modal
         }
     };
 
@@ -136,6 +143,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 productName={name}
                 visible={isFeedbackModalVisible}
             />
+            <Modal
+                centered
+                okText="Đóng"
+                onCancel={() => setOutOfStockModalVisible(false)}
+                onOk={() => setOutOfStockModalVisible(false)}
+                title="Thông báo"
+                visible={isOutOfStockModalVisible}
+            >
+                <p>Sản phẩm này đã hết hàng.</p>
+            </Modal>
         </>
     );
 };

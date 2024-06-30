@@ -123,6 +123,7 @@ export const searchProducts = async (req: Request, res: Response) => {
                 name: true,
                 discount_price: true,
                 original_price: true,
+                quantity: true,
                 description: true,
                 thumbnail: true,
                 updatedAt: true,
