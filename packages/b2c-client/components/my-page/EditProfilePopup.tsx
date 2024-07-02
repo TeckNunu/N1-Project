@@ -74,7 +74,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     });
 
     useEffect(() => {
-        if (initialValues) {
+        if (visible) {
             form.setFieldsValue({
                 ...initialValues,
                 dob: initialValues.dob
@@ -82,8 +82,9 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                     : null,
             });
             setUploadedImageName(avatarUrl);
+            setFileList([]); // Clear file list when modal opens
         }
-    }, [initialValues, avatarUrl, form]);
+    }, [visible, form, initialValues, avatarUrl]);
 
     const handleOk = async () => {
         setIsConfirmationModalVisible(true);
@@ -93,6 +94,24 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
         try {
             const values = await form.validateFields();
             let newUploadedImageName = uploadedImageName;
+
+            const initialValuesFormatted = {
+                ...initialValues,
+                dob: initialValues.dob
+                    ? moment(initialValues.dob, 'DD/MM/YYYY')
+                    : null,
+            };
+
+            // so sánh xem có thay đổi data ko
+            if (
+                JSON.stringify(values) ===
+                    JSON.stringify(initialValuesFormatted) &&
+                fileList.length === 0
+            ) {
+                message.warning('No changes detected, update not required.');
+                setIsConfirmationModalVisible(false);
+                return;
+            }
 
             if (fileList.length > 0) {
                 const fileListToUpload = fileList.map(
@@ -257,7 +276,6 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                             <Form.Item
                                 getValueFromEvent={normFile}
                                 name="avatar"
-                                valuePropName="fileList"
                             >
                                 <Upload
                                     beforeUpload={beforeUpload}

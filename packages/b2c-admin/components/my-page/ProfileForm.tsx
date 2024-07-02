@@ -161,6 +161,11 @@ const ProfileForm = () => {
         setCheckHideImg(true);
     };
 
+    const openModal = () => {
+        setFileList([]); // Clear file list before opening modal
+        setIsModalVisible(true);
+    };
+
     const formItemLayout = {
         labelCol: {
             xs: { span: 24 },
@@ -254,7 +259,6 @@ const ProfileForm = () => {
                             <Form.Item
                                 getValueFromEvent={normFile}
                                 name="avatar"
-                                valuePropName="fileList"
                             >
                                 <Upload
                                     beforeUpload={beforeUpload}
@@ -290,7 +294,7 @@ const ProfileForm = () => {
                     <Form.Item>
                         <Button
                             htmlType="submit"
-                            onClick={() => setIsModalVisible(true)}
+                            onClick={openModal}
                             type="primary"
                         >
                             Sửa hồ sơ
