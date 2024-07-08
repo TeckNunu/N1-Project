@@ -302,8 +302,6 @@ const ProfileForm = () => {
                     </Form.Item>
                 </Form>
                 <EditProfilePopup
-                    avatarUrl={avatarUrl}
-                    initialValues={form.getFieldsValue()}
                     onClose={handlePopupClose}
                     visible={isModalVisible}
                 />

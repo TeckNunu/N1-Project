@@ -246,6 +246,9 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                             >
                                 <Input />
                             </Form.Item>
+                            <p className={styles.emailNote}>
+                                Không được thay đổi Email
+                            </p>
                             <Form.Item
                                 label="Email"
                                 name="email"

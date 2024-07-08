@@ -7,14 +7,29 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { get } from 'common/utils/http-request';
 import { getImageUrl } from 'common/utils/getImageUrl';
+import EditProfilePopup from '../my-page/EditProfilePopup';
+import ChangePasswordPopup from '~/components/my-page/ChangePasswordPopup';
 
 type Props = {
     title: string;
 };
 
+interface UserProfile {
+    name: string;
+    email: string;
+    phone: string;
+    gender: string;
+    dob: string | null;
+    address: string;
+}
+
 const Header: React.FC<Props> = ({ title }) => {
     const router = useRouter();
     const [userImage, setUserImage] = useState<string | null>(null);
+    const [isProfilePopupVisible, setIsProfilePopupVisible] = useState(false);
+    const [isChangePasswordPopupVisible, setIsChangePasswordPopupVisible] =
+        useState(false);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
     const fetchUserImage = async () => {
         try {
@@ -26,8 +41,18 @@ const Header: React.FC<Props> = ({ title }) => {
         }
     };
 
+    const fetchUserProfile = async () => {
+        try {
+            const response = await get('/user-profile');
+            setUserProfile(response.data.data);
+        } catch (error) {
+            //
+        }
+    };
+
     useEffect(() => {
         fetchUserImage();
+        fetchUserProfile();
     }, []);
 
     const logOut = () => {
@@ -42,7 +67,7 @@ const Header: React.FC<Props> = ({ title }) => {
             key: '1',
             label: (
                 <div
-                    onClick={() => router.push('/my-page')}
+                    onClick={() => setIsProfilePopupVisible(true)}
                     role="presentation"
                 >
                     Profile
@@ -51,6 +76,28 @@ const Header: React.FC<Props> = ({ title }) => {
         },
         {
             key: '2',
+            label: (
+                <div
+                    onClick={() => setIsChangePasswordPopupVisible(true)}
+                    role="presentation"
+                >
+                    Change Password
+                </div>
+            ),
+        },
+        {
+            key: '3',
+            label: (
+                <div
+                    onClick={() => router.push('/my-page')}
+                    role="presentation"
+                >
+                    My Orders
+                </div>
+            ),
+        },
+        {
+            key: '4',
             label: (
                 <div
                     className="text-rose-500"
@@ -74,7 +121,11 @@ const Header: React.FC<Props> = ({ title }) => {
                     }}
                     placement="bottomLeft"
                 >
-                    <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
+                    <div
+                        className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1"
+                        onClick={() => router.push('/my-page')}
+                        role="presentation"
+                    >
                         {userImage ? (
                             <Image
                                 alt="avatar"
@@ -95,6 +146,18 @@ const Header: React.FC<Props> = ({ title }) => {
                         <MenuOutlined />
                     </div>
                 </Dropdown>
+                {userProfile && (
+                    <EditProfilePopup
+                        onClose={() => setIsProfilePopupVisible(false)}
+                        visible={isProfilePopupVisible}
+                    />
+                )}
+                {userProfile && (
+                    <ChangePasswordPopup
+                        onClose={() => setIsChangePasswordPopupVisible(false)}
+                        visible={isChangePasswordPopupVisible}
+                    />
+                )}
             </div>
         </div>
     );
