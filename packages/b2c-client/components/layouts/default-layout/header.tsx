@@ -1,22 +1,25 @@
 import { MenuOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Button, Dropdown } from 'antd';
-import Image from 'next/image';
+import { Button, Dropdown, MenuProps, Skeleton } from 'antd';
+
 import { useRouter } from 'next/router';
 import React from 'react';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
+import { getImageUrl } from 'common/utils/getImageUrl';
 import { useAuth } from '~/hooks/useAuth';
 import useLoginModal from '~/hooks/useLoginModal';
 import useRegisterModal from '~/hooks/useRegisterModal';
 import Search from './search';
 import CartIcon from './cart-icon';
+import Avatar from './avatar';
+import { useUserQueryStore } from '~/hooks/useUserStore';
 
 const Header = () => {
     const auth = useAuth();
     const router = useRouter();
     const { onOpen: openLoginModal } = useLoginModal();
     const { onOpen: openRegisterModal } = useRegisterModal();
+    const { user, isFetching } = useUserQueryStore();
 
     const logOut = () => {
         Cookies.remove('accessTokenClient');
@@ -87,14 +90,19 @@ const Header = () => {
                                 }}
                                 placement="bottomRight"
                             >
-                                <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
-                                    <Image
-                                        alt="avatar"
-                                        className="rounded-full"
-                                        height={40}
-                                        src="/images/placeholder.jpg"
-                                        width={40}
-                                    />
+                                <div className="flex cursor-pointer space-x-4 rounded-full border px-3 py-2">
+                                    {isFetching ? (
+                                        <Skeleton.Avatar active className="" />
+                                    ) : (
+                                        <Avatar
+                                            height={40}
+                                            src={getImageUrl(
+                                                user?.data?.image ?? ''
+                                            )}
+                                            width={40}
+                                        />
+                                    )}
+
                                     <MenuOutlined />
                                 </div>
                             </Dropdown>

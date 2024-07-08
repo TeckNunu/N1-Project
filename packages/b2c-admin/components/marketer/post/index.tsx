@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import {
@@ -106,7 +107,10 @@ const PostList = () => {
                 .put(`post/updateStatus/${postId}`, { isShow })
                 .then((res) => res.data);
         },
-        onSuccess: (res) => toast.success(res.message),
+        onSuccess: (res) => {
+            toast.success(res.message);
+            refetch();
+        },
         onError: (
             error: AxiosError<{
                 isOk?: boolean | null;
@@ -127,7 +131,10 @@ const PostList = () => {
                 .put(`post/updateFeatured/${postId}`, { isFeatured })
                 .then((res) => res.data);
         },
-        onSuccess: (res) => toast.success(res.message),
+        onSuccess: (res) => {
+            toast.success(res.message);
+            refetch();
+        },
         onError: (
             error: AxiosError<{
                 isOk?: boolean | null;
@@ -420,7 +427,6 @@ const PostList = () => {
                             pageSizeOptions={[5, 10, 20, 50]}
                             showSizeChanger
                             total={listPost?.pagination?.total}
-                            // eslint-disable-next-line max-lines
                         />
                     ) : null}
                 </div>

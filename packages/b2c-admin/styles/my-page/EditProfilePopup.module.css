@@ -13,11 +13,11 @@
 }
 
 .formLeft {
-    width: 60%;
+    width: 80%;
 }
 
 .formRight {
-    width: 35%;
+    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;

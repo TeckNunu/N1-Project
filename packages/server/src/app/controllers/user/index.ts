@@ -76,7 +76,7 @@ export const updateProfileUser = async (req: Request, res: Response) => {
         return res.status(200).json({
             isOk: true,
             data: user,
-            message: 'User profile updated successfully!',
+            message: 'Hồ sơ người dùng được cập nhật thành công!',
         });
     } catch (error) {
         return res
@@ -101,7 +101,7 @@ export const changePassword = async (req: Request, res: Response) => {
         if (!oldPassword || !newPassword) {
             return res
                 .status(400)
-                .json({ message: 'Old and new passwords are required' });
+                .json({ message: 'Cần có mật khẩu cũ và mới' });
         }
 
         const user = await db.user.findUnique({
@@ -109,15 +109,15 @@ export const changePassword = async (req: Request, res: Response) => {
         });
 
         if (!user || !user.hashedPassword) {
-            return res.status(404).json({ message: 'User not found' });
+            return res
+                .status(404)
+                .json({ message: 'Không tìm thấy người dùng' });
         }
 
         const isMatch = await bcrypt.compare(oldPassword, user.hashedPassword);
 
         if (!isMatch) {
-            return res
-                .status(400)
-                .json({ message: 'Old password is incorrect' });
+            return res.status(400).json({ message: 'Mật khẩu cũ không đúng' });
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -131,7 +131,83 @@ export const changePassword = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             isOk: true,
-            message: 'Password changed successfully!',
+            message: 'Đã đổi mật khẩu thành công!',
+        });
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ error: 'Internal Server Error', details: error.message });
+    }
+};
+
+export const getUserImage = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+
+    if (!accessToken) {
+        return res.status(401).json({ message: 'No access token provided' });
+    }
+
+    try {
+        const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+        const userId = tokenDecoded.id;
+
+        const user = await db.user.findUnique({
+            where: { id: userId },
+            select: {
+                image: true,
+            },
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                isOk: false,
+                message: 'User not found',
+            });
+        }
+
+        // Assuming user.image is the URL or path to the user's image
+        const userImage = user.image;
+
+        return res.status(200).json({
+            isOk: true,
+            data: {
+                image: userImage,
+            },
+            message: 'Nhận hình ảnh người dùng thành công!',
+        });
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ error: 'Internal Server Error', details: error.message });
+    }
+};
+
+export const updateUserImage = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+
+    if (!accessToken) {
+        return res.status(401).json({ message: 'No access token provided' });
+    }
+
+    try {
+        const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+        const userId = tokenDecoded.id;
+
+        const { image } = req.body;
+
+        if (!image) {
+            return res.status(400).json({ message: 'Image is required' });
+        }
+
+        const user = await db.user.update({
+            where: { id: userId },
+            data: { image },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: user,
+            message: 'Hình ảnh người dùng được cập nhật thành công!',
         });
     } catch (error) {
         return res

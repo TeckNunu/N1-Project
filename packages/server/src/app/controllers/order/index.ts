@@ -159,7 +159,7 @@ export const editOrderInformation = async (req: Request, res: Response) => {
                 email,
                 gender,
                 name,
-                phoneNumber,
+                phone: phoneNumber,
             },
         });
 

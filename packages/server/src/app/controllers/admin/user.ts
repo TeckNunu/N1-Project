@@ -25,7 +25,10 @@ export const getUser = async (req: Request, res: Response) => {
             name: true,
             email: true,
             image: true,
-            role: true,
+            address: true,
+            gender: true,
+            dob: true,
+            phone: true,
         },
     });
 
@@ -35,10 +38,9 @@ export const getUser = async (req: Request, res: Response) => {
         });
     }
 
-    const successObj: SuccessResponseType = {
-        data: {
-            data: user,
-        },
+    const successObj = {
+        isOk: true,
+        data: user,
         message: 'Get user successfully!',
     };
 
@@ -258,63 +260,76 @@ export const getUserById = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-    const { name, email, role, status, gender, address, dob, phone, image } =
-        req.body;
-
-    let user = await db.user.findFirst({
-        where: { email },
-    });
-
-    if (user) {
-        return res.status(400).json({
-            ...ERROR_RES,
-            errors: { message: 'Account already exist!' },
-        });
-    }
-
-    user = await db.user.create({
-        data: {
+    try {
+        const {
             name,
             email,
-            hashedPassword: hashSync(phone, SALT),
-            phone,
             role,
             status,
             gender,
             address,
-            image,
             dob,
-        },
-    });
+            phone,
+            image,
+        } = req.body;
 
-    const subject = 'User have been created account';
-    const title = `Hi ${user.name},`;
-    const mainContent =
-        '    You have just created an account. You can use this account to login.Please change your password to increase security.';
-    const secondContent = `Email: ${email}<br>
+        let user = await db.user.findFirst({
+            where: { email },
+        });
+
+        if (user) {
+            return res.status(400).json({
+                ...ERROR_RES,
+                errors: { message: 'Account already exist!' },
+            });
+        }
+
+        user = await db.user.create({
+            data: {
+                name,
+                email,
+                hashedPassword: hashSync(phone, SALT),
+                phone,
+                role,
+                status,
+                gender,
+                address,
+                image,
+                dob,
+            },
+        });
+
+        const subject = 'User have been created account';
+        const title = `Hi ${user.name},`;
+        const mainContent =
+            '    You have just created an account. You can use this account to login.Please change your password to increase security.';
+        const secondContent = `Email: ${email}<br>
         Password: ${phone}<br>
         Best regards,<br>
         Perfume shop.`;
 
-    await sendMail({
-        to: user.email,
-        subject,
-        title,
-        mainContent,
-        secondContent,
-        label: undefined,
-        link: undefined,
-    });
+        await sendMail({
+            to: user.email,
+            subject,
+            title,
+            mainContent,
+            secondContent,
+            label: undefined,
+            link: undefined,
+        });
 
-    const successObj: SuccessResponseType = {
-        data: {
-            data: user,
-            meta_data: undefined,
-        },
-        message: 'Create new user successfully!',
-    };
+        const successObj: SuccessResponseType = {
+            data: {
+                data: user,
+                meta_data: undefined,
+            },
+            message: 'Create new user successfully!',
+        };
 
-    return res.status(200).json(successObj);
+        return res.status(200).json(successObj);
+    } catch (error) {
+        return res.sendStatus(500);
+    }
 };
 
 export const editUser = async (req: Request, res: Response) => {

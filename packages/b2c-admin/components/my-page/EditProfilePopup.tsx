@@ -77,7 +77,9 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
         if (initialValues) {
             form.setFieldsValue({
                 ...initialValues,
-                dob: initialValues.dob ? moment(initialValues.dob) : null,
+                dob: initialValues.dob
+                    ? moment(initialValues.dob, 'DD/MM/YYYY')
+                    : null,
             });
             setUploadedImageName(avatarUrl);
         }
@@ -113,7 +115,6 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                 }
             }
 
-            // Loại bỏ phần URL khỏi tên ảnh, chỉ lưu tên ảnh
             const imageName = newUploadedImageName.split('/').pop();
 
             const updateData = {
@@ -123,7 +124,6 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                 dob: values.dob ? values.dob.format('YYYY-MM-DD') : null,
             };
 
-            // Loại bỏ dữ liệu ảnh từ values trước khi gửi yêu cầu PUT, ko gửi ảnh cùng Put
             delete updateData.avatar;
 
             await updateUserProfile(updateData);
@@ -178,10 +178,10 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                     initialValues={{
                         ...initialValues,
                         dob: initialValues.dob
-                            ? moment(initialValues.dob)
+                            ? moment(initialValues.dob, 'DD/MM/YYYY')
                             : null,
                     }}
-                    layout="horizontal" // Set the form layout to horizontal
+                    layout="horizontal"
                     name="edit_profile"
                 >
                     <div className={styles.formContent}>

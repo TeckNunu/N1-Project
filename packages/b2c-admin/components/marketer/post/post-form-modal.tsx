@@ -369,9 +369,9 @@ const PostFormModal: React.FC<Props> = ({ type, title, reload, postId }) => {
                                 name="description"
                                 rules={[
                                     {
-                                        max: 1000,
+                                        max: 10000,
                                         message:
-                                            'Description must be less than 100 characters!',
+                                            'Description must be less than 1000 characters!',
                                     },
                                 ]}
                             >

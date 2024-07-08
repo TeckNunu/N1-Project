@@ -22,6 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     name,
     discount_price,
     original_price,
+    quantity,
     description,
     thumbnail,
 }) => {
@@ -54,14 +55,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     const handleBuy = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
-        const productData = { productId: id, quantity: 1 };
+        if (quantity > 0) {
+            const productData = { productId: id, quantity: 1 };
 
-        // Check if user is authenticated
-        if (auth && (auth as { access_token: string }).access_token) {
-            addToCart.mutate(productData);
+            // Check if user is authenticated
+            if (auth && (auth as { access_token: string }).access_token) {
+                addToCart.mutate(productData);
+            } else {
+                // Add to Zustand store instead of localStorage
+                addProduct(productData);
+            }
         } else {
-            // Add to Zustand store instead of localStorage
-            addProduct(productData);
+            //
         }
     };
 
@@ -77,6 +82,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const handleCardClick = () => {
         router.push(`/product/${id}`);
     };
+
+    const handleOutStock = () => {};
 
     const imageUrl = thumbnail ? getImageUrl(thumbnail) : '/images/sp1.jpg';
     const showDiscountPrice =
@@ -118,9 +125,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     )}
                 </Typography.Paragraph>
                 <div className={styles.buttonContainer}>
-                    <Button onClick={handleBuy} type="primary">
-                        Mua
-                    </Button>
+                    {quantity > 0 ? (
+                        <Button onClick={handleBuy} type="primary">
+                            Mua
+                        </Button>
+                    ) : (
+                        <Button
+                            className={styles.outStock}
+                            disabled
+                            onClick={handleOutStock}
+                        >
+                            Hết hàng
+                        </Button>
+                    )}
+
                     <Button
                         className={styles.feedbackButton}
                         onClick={handleFeedback}

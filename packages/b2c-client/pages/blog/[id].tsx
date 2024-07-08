@@ -1,8 +1,10 @@
 /* eslint-disable react/no-danger */
 import React, { useEffect, useState } from 'react';
-import { Layout, Spin } from 'antd';
+import { Breadcrumb, Layout, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import { get } from 'common/utils/http-request';
+import { getImageUrl } from 'common/utils/getImageUrl';
+import Link from 'next/link';
 import Sidebar from '../../components/blog/Sidebar';
 import styles from '~/styles/blog/BlogDetail.module.css';
 
@@ -20,6 +22,7 @@ type Blog = {
         name: string;
     };
     category: {
+        id: string;
         name: string;
     };
 };
@@ -52,6 +55,26 @@ const BlogDetailPage: React.FC = () => {
             <Sidebar isDetailPage />
             <Layout className={styles.mainLayout}>
                 <Content className={styles.content}>
+                    <Breadcrumb>
+                        <Breadcrumb.Item>
+                            <Link href="/">Trang chủ</Link>
+                        </Breadcrumb.Item>
+                        <Breadcrumb.Item>
+                            <Link
+                                href={{
+                                    pathname: '/blog',
+                                    query: {
+                                        category: blog?.category.id,
+                                    },
+                                }}
+                            >
+                                {blog?.category.name}
+                            </Link>
+                        </Breadcrumb.Item>
+                        <Breadcrumb.Item>{blog?.title}</Breadcrumb.Item>
+                    </Breadcrumb>
+                    <hr />
+                    <br />
                     <h1 className={styles.blogTitle}>{blog?.title}</h1>
                     <div className={styles.meta}>
                         <span className={styles.author}>
@@ -67,6 +90,15 @@ const BlogDetailPage: React.FC = () => {
                             Danh mục: {blog?.category.name}
                         </span>
                     </div>
+                    {blog?.thumbnail && (
+                        <div className={styles.thumbnailContainer}>
+                            <img
+                                alt={blog.title}
+                                className={styles.thumbnail}
+                                src={getImageUrl(blog.thumbnail)}
+                            />
+                        </div>
+                    )}
                     <div
                         className={styles.postContent}
                         dangerouslySetInnerHTML={{

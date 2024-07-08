@@ -90,15 +90,21 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
         ((page) => <DefaultLayout>{page}</DefaultLayout>);
 
     if (role === 'ADMIN') {
-        getLayout = (page) => <AdminLayout>{page}</AdminLayout>;
+        getLayout =
+            Component.getLayout ||
+            ((page) => <AdminLayout>{page}</AdminLayout>);
     }
 
-    if (role === 'SELLER') {
-        getLayout = (page) => <SellerLayout>{page}</SellerLayout>;
+    if (role === 'SELLER' || role === 'SELLERMANAGER') {
+        getLayout =
+            Component.getLayout ||
+            ((page) => <SellerLayout>{page}</SellerLayout>);
     }
 
     if (role === 'MARKETER') {
-        getLayout = (page) => <MarketerLayout>{page}</MarketerLayout>;
+        getLayout =
+            Component.getLayout ||
+            ((page) => <MarketerLayout>{page}</MarketerLayout>);
     }
 
     return (

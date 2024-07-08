@@ -2,7 +2,9 @@ import { Router } from 'express';
 import {
     changePassword,
     getProfileUser,
+    getUserImage,
     updateProfileUser,
+    updateUserImage,
 } from '../controllers/user/index';
 import {
     createUser,
@@ -30,4 +32,6 @@ export default (router: Router) => {
         isAuthenticated,
         changePassword
     );
+    router.get('/user-image', isAuthenticated, getUserImage);
+    router.put('/user-profile/update-image', isAuthenticated, updateUserImage);
 };
