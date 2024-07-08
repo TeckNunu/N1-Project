@@ -10,13 +10,20 @@ import {
     Upload,
 } from 'antd';
 import { UploadOutlined, UserOutlined } from '@ant-design/icons';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import weekday from 'dayjs/plugin/weekday';
+import localeData from 'dayjs/plugin/localeData';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { RcFile, UploadFile } from 'antd/es/upload';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import request, { get } from 'common/utils/http-request';
 import { getImageUrl } from 'common/utils/getImageUrl';
 import styles from '~/styles/my-page/EditProfilePopup.module.css';
+
+dayjs.extend(weekday);
+dayjs.extend(localeData);
+dayjs.extend(customParseFormat);
 
 interface UserProfile {
     name: string;
@@ -84,9 +91,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                     form.setFieldsValue({
                         ...userData,
                         gender: userData.gender === 'MALE' ? 'Nam' : 'Nữ',
-                        dob: userData.dob
-                            ? moment(userData.dob, 'YYYY-MM-DD')
-                            : null,
+                        dob: userData.dob ? dayjs(userData.dob) : null,
                     });
                     setUploadedImageName(getImageUrl(userData.image));
                     setFileList([]);
@@ -123,9 +128,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
 
                 const initialValuesFormatted = {
                     ...initialValues,
-                    dob: initialValues.dob
-                        ? moment(initialValues.dob, 'YYYY-MM-DD')
-                        : null,
+                    dob: initialValues.dob ? dayjs(initialValues.dob) : null,
                 };
 
                 return (
@@ -286,9 +289,14 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                                 {...formItemLayout}
                             >
                                 <DatePicker
+                                    defaultPickerValue={
+                                        initialValues && initialValues.dob
+                                            ? dayjs(initialValues.dob)
+                                            : undefined
+                                    }
                                     disabledDate={(current) =>
                                         current &&
-                                        current > moment().endOf('day')
+                                        current > dayjs().endOf('day')
                                     }
                                     format="DD/MM/YYYY"
                                     style={{ width: '100%' }}
