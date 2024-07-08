@@ -2,7 +2,7 @@ import { MenuOutlined } from '@ant-design/icons';
 import { Button, Dropdown, MenuProps, Skeleton } from 'antd';
 
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useState } from 'react';
 import Cookies from 'js-cookie';
 import Link from 'next/link';
 import { getImageUrl } from 'common/utils/getImageUrl';
@@ -13,6 +13,8 @@ import Search from './search';
 import CartIcon from './cart-icon';
 import Avatar from './avatar';
 import { useUserQueryStore } from '~/hooks/useUserStore';
+import EditProfilePopup from '../../my-page/EditProfilePopup';
+import ChangePasswordPopup from '~/components/my-page/ChangePasswordPopup';
 
 const Header = () => {
     const auth = useAuth();
@@ -20,6 +22,9 @@ const Header = () => {
     const { onOpen: openLoginModal } = useLoginModal();
     const { onOpen: openRegisterModal } = useRegisterModal();
     const { user, isFetching } = useUserQueryStore();
+    const [isProfilePopupVisible, setIsProfilePopupVisible] = useState(false);
+    const [isChangePasswordPopupVisible, setIsChangePasswordPopupVisible] =
+        useState(false);
 
     const logOut = () => {
         Cookies.remove('accessTokenClient');
@@ -33,10 +38,21 @@ const Header = () => {
             key: '1',
             label: (
                 <div
-                    onClick={() => router.push('/my-page')}
+                    onClick={() => setIsProfilePopupVisible(true)}
                     role="presentation"
                 >
                     Thông tin
+                </div>
+            ),
+        },
+        {
+            key: '5',
+            label: (
+                <div
+                    onClick={() => setIsChangePasswordPopupVisible(true)}
+                    role="presentation"
+                >
+                    Đổi mật khẩu
                 </div>
             ),
         },
@@ -90,7 +106,11 @@ const Header = () => {
                                 }}
                                 placement="bottomRight"
                             >
-                                <div className="flex cursor-pointer space-x-4 rounded-full border px-3 py-2">
+                                <div
+                                    className="flex cursor-pointer space-x-4 rounded-full border px-3 py-2"
+                                    onClick={() => router.push('/my-page')}
+                                    role="presentation"
+                                >
                                     {isFetching ? (
                                         <Skeleton.Avatar active className="" />
                                     ) : (
@@ -106,6 +126,22 @@ const Header = () => {
                                     <MenuOutlined />
                                 </div>
                             </Dropdown>
+                            {user && (
+                                <EditProfilePopup
+                                    onClose={() =>
+                                        setIsProfilePopupVisible(false)
+                                    }
+                                    visible={isProfilePopupVisible}
+                                />
+                            )}
+                            {user && (
+                                <ChangePasswordPopup
+                                    onClose={() =>
+                                        setIsChangePasswordPopupVisible(false)
+                                    }
+                                    visible={isChangePasswordPopupVisible}
+                                />
+                            )}
                         </div>
                     ) : (
                         <div className="flex space-x-3">
