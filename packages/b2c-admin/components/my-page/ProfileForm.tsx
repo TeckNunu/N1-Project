@@ -11,7 +11,6 @@ import {
 } from 'antd';
 import { UploadOutlined, UserOutlined } from '@ant-design/icons';
 import request, { get } from 'common/utils/http-request';
-
 import { useMutation } from '@tanstack/react-query';
 import { getImageUrl } from 'common/utils/getImageUrl';
 import moment from 'moment';
@@ -161,6 +160,11 @@ const ProfileForm = () => {
         setCheckHideImg(true);
     };
 
+    const openModal = () => {
+        setFileList([]); // Clear file list before opening modal
+        setIsModalVisible(true);
+    };
+
     const formItemLayout = {
         labelCol: {
             xs: { span: 24 },
@@ -254,7 +258,6 @@ const ProfileForm = () => {
                             <Form.Item
                                 getValueFromEvent={normFile}
                                 name="avatar"
-                                valuePropName="fileList"
                             >
                                 <Upload
                                     beforeUpload={beforeUpload}
@@ -290,7 +293,7 @@ const ProfileForm = () => {
                     <Form.Item>
                         <Button
                             htmlType="submit"
-                            onClick={() => setIsModalVisible(true)}
+                            onClick={openModal}
                             type="primary"
                         >
                             Sửa hồ sơ
@@ -298,8 +301,6 @@ const ProfileForm = () => {
                     </Form.Item>
                 </Form>
                 <EditProfilePopup
-                    avatarUrl={avatarUrl}
-                    initialValues={form.getFieldsValue()}
                     onClose={handlePopupClose}
                     visible={isModalVisible}
                 />
