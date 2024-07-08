@@ -14,7 +14,8 @@ import moment from 'moment';
 import { RcFile, UploadFile } from 'antd/es/upload';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import request from 'common/utils/http-request';
+import request, { get } from 'common/utils/http-request';
+import { getImageUrl } from 'common/utils/getImageUrl';
 import styles from '~/styles/my-page/EditProfilePopup.module.css';
 
 interface UserProfile {
@@ -24,26 +25,26 @@ interface UserProfile {
     gender: string;
     dob: string | null;
     address: string;
+    image: string;
 }
 
 interface EditProfilePopupProps {
     visible: boolean;
     onClose: () => void;
-    initialValues: UserProfile;
-    avatarUrl: string;
 }
 
 const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     visible,
     onClose,
-    initialValues,
-    avatarUrl,
 }) => {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [uploadedImageName, setUploadedImageName] = useState(avatarUrl);
+    const [uploadedImageName, setUploadedImageName] = useState('');
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
         useState(false);
+    const [initialValues, setInitialValues] = useState<UserProfile | null>(
+        null
+    );
 
     const { mutateAsync: uploadFileTrigger } = useMutation({
         mutationFn: (files: RcFile[]) => {
@@ -75,16 +76,28 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
 
     useEffect(() => {
         if (visible) {
-            form.setFieldsValue({
-                ...initialValues,
-                dob: initialValues.dob
-                    ? moment(initialValues.dob, 'DD/MM/YYYY')
-                    : null,
-            });
-            setUploadedImageName(avatarUrl);
-            setFileList([]); // Clear file list when modal opens
+            const fetchUserProfile = async () => {
+                try {
+                    const response = await get('/user-profile');
+                    const userData: UserProfile = response.data.data;
+                    setInitialValues(userData);
+                    form.setFieldsValue({
+                        ...userData,
+                        gender: userData.gender === 'MALE' ? 'Nam' : 'Nữ',
+                        dob: userData.dob
+                            ? moment(userData.dob, 'YYYY-MM-DD')
+                            : null,
+                    });
+                    setUploadedImageName(getImageUrl(userData.image));
+                    setFileList([]);
+                } catch (error) {
+                    message.error('Failed to load user profile');
+                }
+            };
+
+            fetchUserProfile();
         }
-    }, [visible, form, initialValues, avatarUrl]);
+    }, [visible, form]);
 
     const handleOk = async () => {
         setIsConfirmationModalVisible(true);
@@ -93,21 +106,44 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     const handleConfirmOk = async () => {
         try {
             const values = await form.validateFields();
-            let newUploadedImageName = uploadedImageName;
 
-            const initialValuesFormatted = {
-                ...initialValues,
-                dob: initialValues.dob
-                    ? moment(initialValues.dob, 'DD/MM/YYYY')
-                    : null,
+            // Trimming whitespace from string fields
+            const trimmedValues = {
+                ...values,
+                name: values.name.trim(),
+                email: values.email.trim(),
+                phone: values.phone.trim(),
+                address: values.address.trim(),
             };
 
-            // so sánh xem có thay đổi data ko
-            if (
-                JSON.stringify(values) ===
-                    JSON.stringify(initialValuesFormatted) &&
-                fileList.length === 0
-            ) {
+            let newUploadedImageName = uploadedImageName;
+
+            const profileChanged = () => {
+                if (!initialValues) return true;
+
+                const initialValuesFormatted = {
+                    ...initialValues,
+                    dob: initialValues.dob
+                        ? moment(initialValues.dob, 'YYYY-MM-DD')
+                        : null,
+                };
+
+                return (
+                    trimmedValues.name !== initialValuesFormatted.name ||
+                    trimmedValues.phone !== initialValuesFormatted.phone ||
+                    trimmedValues.gender !==
+                        (initialValuesFormatted.gender === 'MALE'
+                            ? 'Nam'
+                            : 'Nữ') ||
+                    (trimmedValues.dob &&
+                        trimmedValues.dob.format('YYYY-MM-DD') !==
+                            initialValuesFormatted.dob?.format('YYYY-MM-DD')) ||
+                    trimmedValues.address !== initialValuesFormatted.address ||
+                    fileList.length > 0
+                );
+            };
+
+            if (!profileChanged()) {
                 message.warning('No changes detected, update not required.');
                 setIsConfirmationModalVisible(false);
                 return;
@@ -137,10 +173,12 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
             const imageName = newUploadedImageName.split('/').pop();
 
             const updateData = {
-                ...values,
-                gender: values.gender === 'Nam' ? 'MALE' : 'FEMALE',
+                ...trimmedValues,
+                gender: trimmedValues.gender === 'Nam' ? 'MALE' : 'FEMALE',
                 image: imageName || '',
-                dob: values.dob ? values.dob.format('YYYY-MM-DD') : null,
+                dob: trimmedValues.dob
+                    ? trimmedValues.dob.format('YYYY-MM-DD')
+                    : null,
             };
 
             delete updateData.avatar;
@@ -192,23 +230,19 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                 open={visible}
                 title="Edit Profile"
             >
-                <Form
-                    form={form}
-                    initialValues={{
-                        ...initialValues,
-                        dob: initialValues.dob
-                            ? moment(initialValues.dob, 'DD/MM/YYYY')
-                            : null,
-                    }}
-                    layout="horizontal"
-                    name="edit_profile"
-                >
+                <Form form={form} layout="horizontal" name="edit_profile">
                     <div className={styles.formContent}>
                         <div className={styles.formLeft}>
                             <Form.Item
                                 label="Name"
                                 name="name"
                                 {...formItemLayout}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your name!',
+                                    },
+                                ]}
                             >
                                 <Input />
                             </Form.Item>
@@ -223,6 +257,13 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                                 label="Số điện thoại"
                                 name="phone"
                                 {...formItemLayout}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            'Please input your phone number!',
+                                    },
+                                ]}
                             >
                                 <Input />
                             </Form.Item>
@@ -254,6 +295,12 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                                 label="Địa chỉ"
                                 name="address"
                                 {...formItemLayout}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your address!',
+                                    },
+                                ]}
                             >
                                 <Input />
                             </Form.Item>
