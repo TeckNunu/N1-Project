@@ -52,6 +52,12 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
                 );
                 return;
             }
+            if (values.newPassword === values.oldPassword) {
+                message.error(
+                    'Mật khẩu mới không được trùng với mật khẩu hiện tại!'
+                );
+                return;
+            }
             if (values.newPassword !== values.confirmPassword) {
                 message.error('Mật khẩu mới không khớp!');
                 return;
@@ -131,10 +137,6 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
                                 required: true,
                                 message:
                                     'Vui lòng xác nhận mật khẩu mới của bạn!',
-                            },
-                            {
-                                min: 8,
-                                message: 'Mật khẩu có độ dài tối thiểu 8 kí tự',
                             },
                         ]}
                     >

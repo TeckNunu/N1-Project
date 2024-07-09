@@ -29,10 +29,10 @@ interface UserProfile {
     name: string;
     email: string;
     phone: string;
-    gender: string;
-    dob: string | null;
-    address: string;
-    image: string;
+    gender?: string;
+    dob?: string | null;
+    address?: string;
+    image?: string;
 }
 
 interface EditProfilePopupProps {
@@ -52,6 +52,12 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     const [initialValues, setInitialValues] = useState<UserProfile | null>(
         null
     );
+
+    const mapGender = (gender: string | undefined) => {
+        if (gender === 'MALE') return 'Nam';
+        if (gender === 'FEMALE') return 'Nữ';
+        return undefined;
+    };
 
     const { mutateAsync: uploadFileTrigger } = useMutation({
         mutationFn: (files: RcFile[]) => {
@@ -90,7 +96,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                     setInitialValues(userData);
                     form.setFieldsValue({
                         ...userData,
-                        gender: userData.gender === 'MALE' ? 'Nam' : 'Nữ',
+                        gender: mapGender(userData.gender),
                         dob: userData.dob ? dayjs(userData.dob) : null,
                     });
                     setUploadedImageName(getImageUrl(userData.image));
@@ -118,7 +124,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                 name: values.name.trim(),
                 email: values.email.trim(),
                 phone: values.phone.trim(),
-                address: values.address.trim(),
+                address: values.address?.trim() || null,
             };
 
             let newUploadedImageName = uploadedImageName;
@@ -129,15 +135,13 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                 const initialValuesFormatted = {
                     ...initialValues,
                     dob: initialValues.dob ? dayjs(initialValues.dob) : null,
+                    gender: mapGender(initialValues.gender),
                 };
 
                 return (
                     trimmedValues.name !== initialValuesFormatted.name ||
                     trimmedValues.phone !== initialValuesFormatted.phone ||
-                    trimmedValues.gender !==
-                        (initialValuesFormatted.gender === 'MALE'
-                            ? 'Nam'
-                            : 'Nữ') ||
+                    trimmedValues.gender !== initialValuesFormatted.gender ||
                     (trimmedValues.dob &&
                         trimmedValues.dob.format('YYYY-MM-DD') !==
                             initialValuesFormatted.dob?.format('YYYY-MM-DD')) ||
@@ -177,7 +181,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
 
             const updateData = {
                 ...trimmedValues,
-                gender: trimmedValues.gender === 'Nam' ? 'MALE' : 'FEMALE',
+                gender: mapGender(trimmedValues.gender),
                 image: imageName || '',
                 dob: trimmedValues.dob
                     ? trimmedValues.dob.format('YYYY-MM-DD')
@@ -256,6 +260,12 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                                 label="Email"
                                 name="email"
                                 {...formItemLayout}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your email!',
+                                    },
+                                ]}
                             >
                                 <Input disabled />
                             </Form.Item>
@@ -269,9 +279,14 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                                         message:
                                             'Please input your phone number!',
                                     },
+                                    {
+                                        pattern: /^0\d{10}$/,
+                                        message:
+                                            'Phone number must be 11 digits and start with 0!',
+                                    },
                                 ]}
                             >
-                                <Input />
+                                <Input maxLength={11} />
                             </Form.Item>
                             <Form.Item
                                 label="Giới tính"
@@ -306,12 +321,6 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                                 label="Địa chỉ"
                                 name="address"
                                 {...formItemLayout}
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please input your address!',
-                                    },
-                                ]}
                             >
                                 <Input />
                             </Form.Item>

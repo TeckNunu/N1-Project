@@ -52,6 +52,12 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
                 );
                 return;
             }
+            if (values.newPassword === values.oldPassword) {
+                message.error(
+                    'Mật khẩu mới không được trùng với mật khẩu hiện tại!'
+                );
+                return;
+            }
             if (values.newPassword !== values.confirmPassword) {
                 message.error('Mật khẩu mới không khớp!');
                 return;
