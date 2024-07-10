@@ -59,6 +59,12 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
         return undefined;
     };
 
+    const mapGenderToAPI = (gender: string | undefined) => {
+        if (gender === 'Nam') return 'MALE';
+        if (gender === 'Nữ') return 'FEMALE';
+        return undefined;
+    };
+
     const { mutateAsync: uploadFileTrigger } = useMutation({
         mutationFn: (files: RcFile[]) => {
             const formData = new FormData();
@@ -181,7 +187,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
 
             const updateData = {
                 ...trimmedValues,
-                gender: mapGender(trimmedValues.gender),
+                gender: mapGenderToAPI(trimmedValues.gender),
                 image: imageName || '',
                 dob: trimmedValues.dob
                     ? trimmedValues.dob.format('YYYY-MM-DD')
