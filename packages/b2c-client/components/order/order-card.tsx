@@ -152,8 +152,8 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order, reload }) => {
                                                         ?.productName ?? ''
                                                 }
                                                 size={
-                                                    order.orderDetail[0]
-                                                        ?.size ?? ''
+                                                    order.orderDetail[0]?.size?.toString() ??
+                                                    ''
                                                 }
                                                 thumnail={
                                                     order.orderDetail[0]

@@ -37,16 +37,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onMenuClick }) => {
                 onClick={handleMenuClick}
                 style={{ height: '100%', borderRight: 0 }}
             >
-                <SubMenu
-                    icon={<UserOutlined />}
-                    key="sub1"
-                    title="Tài Khoản Của Tôi"
-                >
+                <SubMenu icon={<UserOutlined />} key="sub1" title="My Account">
                     <Menu.Item icon={<IdcardOutlined />} key="1">
-                        Hồ Sơ
+                        My information
                     </Menu.Item>
                     <Menu.Item icon={<LockOutlined />} key="2">
-                        Đổi Mật Khẩu
+                        Change Password
                     </Menu.Item>
                 </SubMenu>
             </Menu>

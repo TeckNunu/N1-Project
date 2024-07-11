@@ -190,7 +190,7 @@ const OrderDetail = () => {
                                     <p>
                                         Số điện thoại:{' '}
                                         <span className=" ml-1">
-                                            {orderDetail?.phoneNumber}
+                                            {orderDetail?.phone}
                                         </span>
                                     </p>
                                     <p>
@@ -208,9 +208,7 @@ const OrderDetail = () => {
                                             gender={orderDetail?.gender ?? ''}
                                             name={orderDetail?.name ?? ''}
                                             orderId={orderDetail?.id ?? ''}
-                                            phoneNumber={
-                                                orderDetail?.phoneNumber ?? ''
-                                            }
+                                            phone={orderDetail?.phone ?? ''}
                                             reload={() => refetch()}
                                         />
                                     )}
@@ -303,7 +301,7 @@ const OrderDetail = () => {
                                                                 ''
                                                             }
                                                             size={
-                                                                detail.size ??
+                                                                detail.size?.toString() ??
                                                                 ''
                                                             }
                                                             thumnail={

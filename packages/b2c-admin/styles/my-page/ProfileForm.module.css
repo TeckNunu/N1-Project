@@ -50,3 +50,16 @@
     object-fit: cover;
     margin-bottom: 40px;
 }
+
+.uploadContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btnUpdateImg {
+    display: flex;
+    justify-content: center;
+}

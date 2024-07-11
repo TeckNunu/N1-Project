@@ -3,22 +3,14 @@ export type Post = {
     title?: string | null;
     description?: string | null;
     briefInfo?: string | null;
-    categoryId?: string | null;
     userId?: string | null;
     thumbnail?: string | null;
     isShow?: boolean | null;
     isFeatured?: boolean | null;
     createdAt?: string | null;
     updatedAt?: string | null;
-    category?: Category | null;
+    category?: string | null;
     user?: User | null;
-};
-
-export type Category = {
-    id?: string | null;
-    name?: string | null;
-    createdAt?: string | null;
-    updatedAt?: string | null;
 };
 
 export type ResponsePostById = {

@@ -9,41 +9,62 @@ import {
     Radio,
     Upload,
 } from 'antd';
-import { UploadOutlined, UserOutlined } from '@ant-design/icons';
-import moment from 'moment';
+import { UploadOutlined } from '@ant-design/icons';
+import Avatar from 'common/components/avatar';
+import dayjs from 'dayjs';
+import weekday from 'dayjs/plugin/weekday';
+import localeData from 'dayjs/plugin/localeData';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { RcFile, UploadFile } from 'antd/es/upload';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import request from 'common/utils/http-request';
+import request, { get } from 'common/utils/http-request';
+import { getImageUrl } from 'common/utils/getImageUrl';
+import { useUserQueryStore } from 'common/store/useUserStore';
+import { PHONE_PATTERN } from 'common/constant/pattern';
 import styles from '~/styles/my-page/EditProfilePopup.module.css';
+
+dayjs.extend(weekday);
+dayjs.extend(localeData);
+dayjs.extend(customParseFormat);
 
 interface UserProfile {
     name: string;
     email: string;
     phone: string;
-    gender: string;
-    dob: string | null;
-    address: string;
+    gender?: string;
+    dob?: string | null;
+    address?: string;
+    image?: string;
 }
-
+const mapGender = (gender: string | undefined) => {
+    if (gender === 'MALE') return 'Nam';
+    if (gender === 'FEMALE') return 'Nữ';
+    return undefined;
+};
+const mapGenderToAPI = (gender: string | undefined) => {
+    if (gender === 'Nam') return 'MALE';
+    if (gender === 'Nữ') return 'FEMALE';
+    return undefined;
+};
 interface EditProfilePopupProps {
     visible: boolean;
     onClose: () => void;
-    initialValues: UserProfile;
-    avatarUrl: string;
 }
 
 const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     visible,
     onClose,
-    initialValues,
-    avatarUrl,
 }) => {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [uploadedImageName, setUploadedImageName] = useState(avatarUrl);
+    const [uploadedImageName, setUploadedImageName] = useState('');
     const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
         useState(false);
+    const [initialValues, setInitialValues] = useState<UserProfile | null>(
+        null
+    );
+    const { reload } = useUserQueryStore();
 
     const { mutateAsync: uploadFileTrigger } = useMutation({
         mutationFn: (files: RcFile[]) => {
@@ -61,27 +82,42 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
             return request.put('/user-profile/update', data);
         },
         onSuccess: () => {
-            message.success('Profile updated successfully');
+            message.success('User Profile updated successfully');
             form.resetFields();
             setFileList([]);
             setUploadedImageName('');
             onClose();
+            setTimeout(() => reload());
         },
         onError: (err) => {
             const error = err as Error;
-            message.error(error.message || 'Failed to update profile');
+            message.error(error.message || 'Unable to update user information');
         },
     });
 
     useEffect(() => {
-        if (initialValues) {
-            form.setFieldsValue({
-                ...initialValues,
-                dob: initialValues.dob ? moment(initialValues.dob) : null,
-            });
-            setUploadedImageName(avatarUrl);
+        if (visible) {
+            const fetchUserProfile = async () => {
+                try {
+                    const response = await get('/user-profile');
+                    const userData: UserProfile = response.data.data;
+                    setInitialValues(userData);
+                    form.setFieldsValue({
+                        ...userData,
+                        gender: mapGender(userData.gender),
+                        dob: userData.dob ? dayjs(userData.dob) : null,
+                    });
+                    setUploadedImageName(getImageUrl(userData.image));
+                    setFileList([]);
+                    setTimeout(() => reload());
+                } catch (error) {
+                    message.error('Failed to load user profile');
+                }
+            };
+
+            fetchUserProfile();
         }
-    }, [initialValues, avatarUrl, form]);
+    }, [visible, form]);
 
     const handleOk = async () => {
         setIsConfirmationModalVisible(true);
@@ -90,7 +126,46 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
     const handleConfirmOk = async () => {
         try {
             const values = await form.validateFields();
+
+            // Trimming whitespace from string fields
+            const trimmedValues = {
+                ...values,
+                name: values.name.trim(),
+                email: values.email.trim(),
+                phone: values.phone.trim(),
+                address: values.address?.trim() || null,
+            };
+
             let newUploadedImageName = uploadedImageName;
+
+            const profileChanged = () => {
+                if (!initialValues) return true;
+
+                const initialValuesFormatted = {
+                    ...initialValues,
+                    dob: initialValues.dob ? dayjs(initialValues.dob) : null,
+                    gender: mapGender(initialValues.gender),
+                };
+
+                return (
+                    trimmedValues.name !== initialValuesFormatted.name ||
+                    trimmedValues.phone !== initialValuesFormatted.phone ||
+                    trimmedValues.gender !== initialValuesFormatted.gender ||
+                    (trimmedValues.dob &&
+                        trimmedValues.dob.format('YYYY-MM-DD') !==
+                            initialValuesFormatted.dob?.format('YYYY-MM-DD')) ||
+                    trimmedValues.address !== initialValuesFormatted.address ||
+                    fileList.length > 0
+                );
+            };
+
+            if (!profileChanged()) {
+                message.warning(
+                    'Update failed. Please change or leave out the space at the end of the information field.'
+                );
+                setIsConfirmationModalVisible(false);
+                return;
+            }
 
             if (fileList.length > 0) {
                 const fileListToUpload = fileList.map(
@@ -113,24 +188,24 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                 }
             }
 
-            // Loại bỏ phần URL khỏi tên ảnh, chỉ lưu tên ảnh
             const imageName = newUploadedImageName.split('/').pop();
 
             const updateData = {
-                ...values,
-                gender: values.gender === 'Nam' ? 'MALE' : 'FEMALE',
+                ...trimmedValues,
+                gender: mapGenderToAPI(trimmedValues.gender),
                 image: imageName || '',
-                dob: values.dob ? values.dob.format('YYYY-MM-DD') : null,
+                dob: trimmedValues.dob
+                    ? trimmedValues.dob.format('YYYY-MM-DD')
+                    : null,
             };
 
-            // Loại bỏ dữ liệu ảnh từ values trước khi gửi yêu cầu PUT, ko gửi ảnh cùng Put
             delete updateData.avatar;
 
             await updateUserProfile(updateData);
             setIsConfirmationModalVisible(false);
         } catch (err) {
             const error = err as Error;
-            message.error(error.message || 'Failed to update profile');
+            message.error(error.message || 'Unable to update user information');
         }
     };
 
@@ -171,68 +246,82 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                 onCancel={onClose}
                 onOk={handleOk}
                 open={visible}
-                title="Edit Profile"
+                title="User Profile"
             >
-                <Form
-                    form={form}
-                    initialValues={{
-                        ...initialValues,
-                        dob: initialValues.dob
-                            ? moment(initialValues.dob)
-                            : null,
-                    }}
-                    layout="horizontal" // Set the form layout to horizontal
-                    name="edit_profile"
-                >
+                <Form form={form} layout="horizontal" name="edit_profile">
                     <div className={styles.formContent}>
                         <div className={styles.formLeft}>
-                            <Form.Item
-                                label="Name"
-                                name="name"
-                                {...formItemLayout}
-                            >
-                                <Input />
-                            </Form.Item>
                             <Form.Item
                                 label="Email"
                                 name="email"
                                 {...formItemLayout}
+                                help="Email cannot be changed."
                             >
                                 <Input disabled />
                             </Form.Item>
                             <Form.Item
-                                label="Số điện thoại"
-                                name="phone"
+                                label="Name"
+                                name="name"
                                 {...formItemLayout}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please enter your name',
+                                    },
+                                ]}
                             >
                                 <Input />
                             </Form.Item>
                             <Form.Item
-                                label="Giới tính"
+                                label="Phone number"
+                                name="phone"
+                                {...formItemLayout}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            'Please enter the phone number',
+                                    },
+                                    {
+                                        pattern: PHONE_PATTERN,
+                                        message:
+                                            'Phone number is in wrong format',
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="Gender"
                                 name="gender"
                                 {...formItemLayout}
                             >
                                 <Radio.Group>
-                                    <Radio value="Nam">Nam</Radio>
-                                    <Radio value="Nữ">Nữ</Radio>
+                                    <Radio value="Nam">Male</Radio>
+                                    <Radio value="Nữ">Female</Radio>
                                 </Radio.Group>
                             </Form.Item>
                             <Form.Item
-                                label="Ngày sinh"
+                                label="Date of birth"
                                 name="dob"
                                 {...formItemLayout}
                             >
                                 <DatePicker
+                                    defaultPickerValue={
+                                        initialValues && initialValues.dob
+                                            ? dayjs(initialValues.dob)
+                                            : undefined
+                                    }
                                     disabledDate={(current) =>
                                         current &&
-                                        current > moment().endOf('day')
+                                        current > dayjs().endOf('day')
                                     }
                                     format="DD/MM/YYYY"
                                     style={{ width: '100%' }}
                                 />
                             </Form.Item>
                             <Form.Item
-                                label="Địa chỉ"
+                                label="Address"
                                 name="address"
                                 {...formItemLayout}
                             >
@@ -241,23 +330,18 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                         </div>
                         <div className={styles.verticalDivider} />
                         <div className={styles.formRight}>
-                            {uploadedImageName ? (
-                                <img
-                                    alt="Avatar"
-                                    className={styles.avatarImage}
-                                    src={
-                                        uploadedImageName.startsWith('http')
-                                            ? uploadedImageName
-                                            : `/images/${uploadedImageName}`
-                                    }
-                                />
-                            ) : (
-                                <UserOutlined className={styles.profileIcon} />
-                            )}
+                            <Avatar
+                                height={150}
+                                src={
+                                    uploadedImageName.startsWith('http')
+                                        ? uploadedImageName
+                                        : `/images/${uploadedImageName}`
+                                }
+                                width={150}
+                            />
                             <Form.Item
                                 getValueFromEvent={normFile}
                                 name="avatar"
-                                valuePropName="fileList"
                             >
                                 <Upload
                                     beforeUpload={beforeUpload}
@@ -267,7 +351,7 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                                     onChange={handleChange}
                                 >
                                     <Button icon={<UploadOutlined />}>
-                                        Chọn Ảnh
+                                        Select Image
                                     </Button>
                                 </Upload>
                             </Form.Item>
@@ -280,9 +364,9 @@ const EditProfilePopup: React.FC<EditProfilePopupProps> = ({
                 onCancel={() => setIsConfirmationModalVisible(false)}
                 onOk={handleConfirmOk}
                 open={isConfirmationModalVisible}
-                title="Confirm Update"
+                title="Confirm update"
             >
-                <p>Bạn có chắc chắn muốn cập nhật thông tin không?</p>
+                <p>Are you sure you want to update the information?</p>
             </Modal>
         </>
     );

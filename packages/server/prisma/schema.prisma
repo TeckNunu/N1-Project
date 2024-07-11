@@ -35,6 +35,7 @@ model User {
   cart     Cart[]
   order    Order[]
   post     Post[]
+  assignedOrders Order[] @relation("orderAssigned")
 }
 
 model Account {
@@ -53,6 +54,7 @@ enum Role {
   ADMIN
   SELLER
   MARKETER
+  SELLERMANAGER
 }
 
 enum UserStatus {
@@ -114,9 +116,12 @@ model Category {
   updatedAt DateTime @updatedAt
 
   product Product[]
-  post    Post[]
+  
 }
-
+enum PostCategory {
+ NEWS
+ REVIEW
+}
 model ProductImage {
   id        String @id @default(uuid())
   url       String @db.Text
@@ -153,16 +158,14 @@ model Post {
   thumbnail   String? @db.Text
   isShow      Boolean @default(true)
   userId      String
-  categoryId  String
+  
   isFeatured  Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  category PostCategory 
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@index([categoryId])
 }
 
 enum SLIDER_STATUS {
@@ -176,6 +179,7 @@ model Feedback {
   userId      String
   productId   String
   rating      Int?
+  isShow      Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -216,12 +220,14 @@ model Cart {
 model Order {
   id            String       @id @default(uuid())
 
-  userId        String
+  appTransId       String? @unique
+
+  userId        String?
   address       String
   name          String
   gender        Gender
   email         String
-  phoneNumber   String
+  phone   String
   
   status        ORDER_STATUS @default(PENDING)
   totalAmount   Int
@@ -231,10 +237,15 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  sellerId String?
+  seller        User?        @relation("orderAssigned", fields: [sellerId], references: [id], onDelete: SetNull)
+  
   orderDetail OrderDetail[]
 
   @@index([userId])
+  @@index([sellerId])
 }
 
 enum PAYMENT_TYPE {
@@ -243,6 +254,8 @@ enum PAYMENT_TYPE {
 }
 
 enum ORDER_STATUS {
+  PAYMENT_PENDING
+  PAID
   PENDING
   CONFIRMED
   DELIVERING
